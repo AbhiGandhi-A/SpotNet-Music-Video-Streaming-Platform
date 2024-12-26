@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <title>Dashboard | SpotNet</title>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="profile" onclick="showProfileOptions()">
+            <img src="data:image/jpeg;base64,{{ user['profile_image'] }}" alt="Profile Image" class="profile-image">
+            <h2>{{ user['name'] }}</h2>
+        </div>
+        <a href="/logout">Logout</a>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-bar">
+        <input type="text" id="search-bar" placeholder="Search movies..." onkeyup="searchMovies()">
+    </div>
+
+    <!-- Movie Categories -->
+    <div class="categories">
+        <button onclick="filterCategory('new_release')">New Releases</button>
+        <button onclick="filterCategory('hindi')">Hindi Movies</button>
+        <button onclick="filterCategory('gujarati')">Gujarati Movies</button>
+        <button onclick="filterCategory('songs')">Songs</button>
+        <button onclick="filterCategory('normal')">Normal Movies</button>
+    </div>
+
+    <!-- Movie Columns Layout -->
+    <div class="movie-columns">
+        <!-- New Releases Section -->
+        <div class="movie-column" id="new_release">
+            <h3>New Release Movies</h3>
+            <div class="movie-cards">
+                {% for movie in new_releases %}
+                    <div class="movie-card">
+                        <a href="{{ url_for('movie_details', movie_id=movie['id']) }}">
+                            <img src="data:image/jpeg;base64,{{ movie['thumbnail'] }}" alt="Movie Thumbnail" class="movie-thumbnail">
+                            <h3>{{ movie['title'] }}</h3>
+                        </a>
+                        <p>{{ movie['category'] }}</p>
+                        <div class="movie-actions">
+                            <button onclick="playMovie('{{ movie['id'] }}')">Play</button>
+                            <button onclick="downloadMovie('{{ movie['id'] }}')">Download</button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Hindi Movies Section -->
+        <div class="movie-column" id="hindi">
+            <h3>Hindi Movies</h3>
+            <div class="movie-cards">
+                {% for movie in hindi_movies %}
+                    <div class="movie-card">
+                        <a href="{{ url_for('movie_details', movie_id=movie['id']) }}">
+                            <img src="data:image/jpeg;base64,{{ movie['thumbnail'] }}" alt="Movie Thumbnail" class="movie-thumbnail">
+                            <h3>{{ movie['title'] }}</h3>
+                        </a>
+                        <p>{{ movie['category'] }}</p>
+                        <div class="movie-actions">
+                            <button onclick="playMovie('{{ movie['id'] }}')">Play</button>
+                            <button onclick="downloadMovie('{{ movie['id'] }}')">Download</button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Gujarati Movies Section -->
+        <div class="movie-column" id="gujarati">
+            <h3>Gujarati Movies</h3>
+            <div class="movie-cards">
+                {% for movie in gujarati_movies %}
+                    <div class="movie-card">
+                        <a href="{{ url_for('movie_details', movie_id=movie['id']) }}">
+                            <img src="data:image/jpeg;base64,{{ movie['thumbnail'] }}" alt="Movie Thumbnail" class="movie-thumbnail">
+                            <h3>{{ movie['title'] }}</h3>
+                        </a>
+                        <p>{{ movie['category'] }}</p>
+                        <div class="movie-actions">
+                            <button onclick="playMovie('{{ movie['id'] }}')">Play</button>
+                            <button onclick="downloadMovie('{{ movie['id'] }}')">Download</button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Normal Movies Section -->
+        <div class="movie-column" id="normal">
+            <h3>Normal Movies</h3>
+            <div class="movie-cards">
+                {% for movie in movies %}
+                    {% if movie['category'] == 'normal' %}
+                    <div class="movie-card">
+                        <a href="{{ url_for('movie_details', movie_id=movie['id']) }}">
+                            <img src="data:image/jpeg;base64,{{ movie['thumbnail'] }}" alt="Movie Thumbnail" class="movie-thumbnail">
+                            <h3>{{ movie['title'] }}</h3>
+                        </a>
+                        <p>{{ movie['category'] }}</p>
+                        <div class="movie-actions">
+                            <button onclick="playMovie('{{ movie['id'] }}')">Play</button>
+                            <button onclick="downloadMovie('{{ movie['id'] }}')">Download</button>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Options Popup -->
+    <div id="profile-options" class="profile-options" style="display:none;">
+        <button onclick="window.location.href='/add_movie'">Add Movie</button>
+        <button onclick="window.location.href='/add_song'">Add Song</button>
+        <button onclick="window.location.href='/add_thumbnail'">Add Thumbnail</button>
+    </div>
+
+    <!-- Sticky Bottom Navbar -->
+    <!-- Sticky Bottom Navbar -->
+<div class="sticky-navbar">
+    <a href="{{ url_for('home') }}">Home</a>
+    <a href="{{ url_for('movies_page') }}">Movies</a>
+    <a href="{{ url_for('songs_page') }}">Songs</a>
+    <a href="/new_releases">New Releases</a>
+</div>
+
+
+    <!-- Scripts -->
+    <script>
+        function showProfileOptions() {
+            document.getElementById('profile-options').style.display = 'block';
+        }
+
+        function playMovie(movie_id) {
+            window.location.href = `/movie/${movie_id}/play`;
+        }
+
+        function downloadMovie(movie_id) {
+            window.location.href = `/movie/${movie_id}/download`;
+        }
+
+        function searchMovies() {
+            var input = document.getElementById('search-bar').value.toLowerCase();
+            var movieCards = document.getElementsByClassName('movie-card');
+            for (var i = 0; i < movieCards.length; i++) {
+                var title = movieCards[i].getElementsByTagName('h3')[0].innerText.toLowerCase();
+                if (title.indexOf(input) > -1) {
+                    movieCards[i].style.display = '';
+                } else {
+                    movieCards[i].style.display = 'none';
+                }
+            }
+        }
+
+function loadDashboard() {
+        fetch('/dashboard')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('main-content').innerHTML = html;
+            });
+    }
+
+    // Function to load the movies page
+function loadMovies() {
+    fetch('/movies')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('main-content').innerHTML = html;
+        });
+}
+
+// Function to load the songs page
+function loadSongs() {
+    fetch('/songs')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('main-content').innerHTML = html;
+        });
+}
+
+// Remove the loadMovies and loadSongs calls if you're doing traditional navigation.
+
+        function filterCategory(category) {
+            window.location.href = `/dashboard?category=${category}`;
+        }
+    </script>
+
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html>

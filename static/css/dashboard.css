@@ -1,0 +1,377 @@
+/* Global styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f0f0f0;
+    color: #333;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+h2, h3 {
+    color: #333;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+}
+
+.navbar .profile {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.navbar .profile img {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+}
+
+.navbar a {
+    color: white;
+    padding: 10px;
+    text-decoration: none;
+}
+
+/* Search Bar */
+.search-bar {
+    padding: 20px;
+    background-color: #fff;
+    text-align: center;
+}
+
+.search-bar input {
+    padding: 10px;
+    width: 50%;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* Movie Categories */
+.categories {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    overflow-x: auto;
+    padding: 10px 0;
+}
+
+.categories button {
+    padding: 10px 20px;
+    background-color: #007BFF;
+    border: none;
+    color: white;
+    font-size: 14px;
+    margin: 0 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.categories button:hover {
+    background-color: #0056b3;
+}
+
+/* Movie Columns Layout */
+.movie-columns {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding: 0 20px;
+    margin-top: 20px;
+}
+
+/* Movie Column */
+.movie-column {
+    flex: 1;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.movie-column h3 {
+    text-align: center;
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: #007BFF;
+}
+
+/* Movie Cards */
+.movie-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 10px;
+}
+
+/* Movie Card */
+.movie-card {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: box-shadow 0.3s ease;
+    width: 230px;
+    cursor: pointer;
+}
+
+.movie-card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.movie-thumbnail {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.movie-thumbnail:hover {
+    transform: scale(1.05);
+}
+
+.movie-card h3 {
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+.movie-card p {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.movie-actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.movie-actions button {
+    padding: 10px 15px;
+    background-color: #28a745;
+    border: none;
+    color: white;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.movie-actions button:hover {
+    background-color: #218838;
+}
+
+.movie-actions button:active {
+    background-color: #1e7e34;
+}
+
+/* Profile Options Popup */
+.profile-options {
+    position: absolute;
+    top: 50px;
+    right: 10px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.profile-options button {
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    background-color: #007BFF;
+    border: none;
+    color: white;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.profile-options button:hover {
+    background-color: #0056b3;
+}
+
+/* Sticky Bottom Navbar */
+.sticky-navbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #333;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+    color: white;
+    font-size: 14px;
+}
+
+.sticky-navbar a {
+    color: white;
+    padding: 10px;
+    text-decoration: none;
+}
+
+.sticky-navbar a:hover {
+    background-color: #007BFF;
+    border-radius: 5px;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .movie-thumbnail {
+        height: 280px;
+    }
+}
+
+@media (max-width: 768px) {
+    .movie-thumbnail {
+        height: 250px;
+    }
+
+    .navbar {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .sticky-navbar {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .movie-thumbnail {
+        height: 220px;
+    }
+
+    .categories button {
+        padding: 10px 15px;
+        font-size: 12px;
+    }
+
+    .movie-card h4 {
+        font-size: 16px;
+    }
+}
+
+/* Additional Responsive Design for Columns */
+@media (max-width: 1024px) {
+    .movie-columns {
+        flex-direction: column;
+    }
+
+    .movie-column {
+        margin-bottom: 30px;
+    }
+
+    .movie-cards {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+/* Styling for Movie Categories to display horizontally */
+.categories {
+    display: flex;
+    justify-content: flex-start;
+    gap: 20px;
+    overflow-x: auto;
+    margin: 20px 0;
+}
+
+.movie-columns {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.movie-column h3 {
+    font-size: 24px;
+    color: #0056b3;
+    text-align: left;
+}
+
+.movie-card {
+    width: 250px;
+    height: auto;
+    padding: 20px;
+    margin: 10px;
+    background-color: #fafafa;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.movie-card:hover {
+    transform: translateY(-10px);
+}
+
+.movie-thumbnail {
+    height: 300px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+/* Flexbox adjustments for smaller screens */
+@media (max-width: 1024px) {
+    .categories {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .movie-card {
+        width: 220px;
+    }
+}
+
+@media (max-width: 768px) {
+    .movie-card {
+        width: 100%;
+        padding: 15px;
+    }
+
+    .movie-thumbnail {
+        height: 250px;
+    }
+}
+
+@media (max-width: 480px) {
+    .movie-thumbnail {
+        height: 220px;
+    }
+
+    .movie-card h3 {
+        font-size: 16px;
+    }
+
+    .categories button {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+}

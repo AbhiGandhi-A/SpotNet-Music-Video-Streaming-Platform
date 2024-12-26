@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Movie | SpotNet</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/songs.css') }}">
+</head>
+<body>
+    <h1>Add Movie</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <label for="title">Movie Title:</label>
+        <input type="text" id="title" name="title" required>
+
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" required></textarea>
+
+        <label for="visibility">Visibility:</label>
+        <select id="visibility" name="visibility">
+            <option value="all">All</option>
+            <option value="private">Private</option>
+        </select>
+
+        <label for="movie_file">Upload Movie:</label>
+        <input type="file" id="movie_file" name="movie_file" required>
+
+        <label for="thumbnail_file">Upload Thumbnail:</label>
+        <input type="file" id="thumbnail_file" name="thumbnail_file" required>
+
+        <label for="category">Category:</label>
+        <select id="category" name="category" required>
+            <option value="normal">Normal</option>
+            <option value="adult">Adult</option>
+        </select>
+
+        <label for="language">Language:</label>
+        <input type="text" id="language" name="language" required>
+
+        <label for="release_date">Release Date:</label>
+        <input type="date" id="release_date" name="release_date" required>
+
+        <button type="submit">Add Movie</button>
+    </form>
+</body>
+</html>
