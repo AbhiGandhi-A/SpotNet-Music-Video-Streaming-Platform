@@ -3,23 +3,31 @@ import pymysql
 import base64
 import os
 from io import BytesIO
+import sqlite3
 from datetime import datetime
 from flask import session
+from dotenv import load_dotenv
+load_dotenv()  # This will load variables from .env file into the environment
 
 
 app = Flask(__name__)
 app.secret_key = "spotnet"
 
 
+
+
 # Database connection
 def get_db_connection():
     return pymysql.connect(
-        host='127.0.0.1',
-        user='root',
-        password='Abhi@3014',
-        database='spotnet',
-        cursorclass=pymysql.cursors.DictCursor
+        host=os.getenv('DB_HOST'),
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PASSWORD'),
+        database=os.getenv('DB_NAME'),
+        port=int(os.getenv('DB_PORT', 3306)),  # Default port is 3306
+        cursorclass=pymysql.cursors.DictCursor,
+        connect_timeout=10  # Timeout after 10 seconds
     )
+
 
 
 # Routes
@@ -423,4 +431,5 @@ def dashboard():
     return render_template('dashboard.html', movies=movies, user=user, new_releases=new_releases, hindi_movies=hindi_movies, gujarati_movies=gujarati_movies)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
+
