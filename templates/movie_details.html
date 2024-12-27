@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ movie['title'] }} | SpotNet</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/details.css') }}">
+</head>
+<body>
+    <div class="movie-details">
+        <img src="data:image/jpeg;base64,{{ movie['thumbnail'] }}" alt="Movie Thumbnail" class="movie-thumbnail">
+        <h1>{{ movie['title'] }}</h1>
+        <p>{{ movie['description'] }}</p>
+
+        <div class="movie-actions">
+            <button onclick="playMovie({{ movie['id'] }})">Play</button>
+            <button onclick="downloadMovie({{ movie['id'] }})">Download</button>
+        </div>
+
+        <div class="ratings">
+            <h3>Ratings</h3>
+            {% for rating in ratings %}
+                <p>{{ rating['rating'] }} / 5</p>
+            {% else %}
+                <p>No ratings yet.</p>
+            {% endfor %}
+        </div>
+
+        <div class="comments">
+            <h3>Comments</h3>
+            {% for comment in comments %}
+                <p>{{ comment['comment'] }}</p>
+            {% else %}
+                <p>No comments yet.</p>
+            {% endfor %}
+        </div>
+
+        <div class="songs">
+            <h3>Songs</h3>
+            {% for song in songs %}
+                <div class="song-item">
+                    <span class="song-name">{{ song['song_name'] }}</span>
+                    <button class="btn-play" onclick="playSong({{ song['id'] }})">Play</button>
+                    <a href="{{ url_for('download_song', song_id=song['id']) }}" class="btn-download">Download</a>
+                </div>
+            {% else %}
+                <p>No songs available.</p>
+            {% endfor %}
+        </div>
+
+        <!-- Hidden audio element to play songs -->
+        <audio id="audioPlayer" controls style="display:none;">
+            Your browser does not support the audio element.
+        </audio>
+    </div>
+
+    <script>
+        function playMovie(movie_id) {
+            window.location.href = `/movie/${movie_id}/play`;
+        }
+
+        function downloadMovie(movie_id) {
+            window.location.href = `/movie/${movie_id}/download`;
+        }
+
+        function playSong(song_id) {
+            // Find the audio player element
+            const audioPlayer = document.getElementById('audioPlayer');
+
+            // Set the source of the audio player to the song URL (you should provide the correct URL for the song)
+            audioPlayer.src = `/song/${song_id}/play`;  // Assuming you have a route that serves the song
+
+            // Play the song
+            audioPlayer.style.display = "block";  // Show the audio player
+            audioPlayer.play();
+        }
+    </script>
+</body>
+</html>

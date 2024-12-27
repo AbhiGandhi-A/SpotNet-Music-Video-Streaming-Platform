@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movies Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/song_page.css') }}">
+</head>
+<body>
+
+    <h1>Movies</h1>
+
+    <!-- Filter Form -->
+    <form method="get" action="{{ url_for('movies_page') }}">
+        <label for="category">Category:</label>
+        <select name="category" id="category">
+            <option value="normal" {% if request.args.get('category') == 'normal' %}selected{% endif %}>All</option>
+            <option value="action" {% if request.args.get('category') == 'action' %}selected{% endif %}>Action</option>
+            <option value="comedy" {% if request.args.get('category') == 'comedy' %}selected{% endif %}>Comedy</option>
+            <option value="drama" {% if request.args.get('category') == 'drama' %}selected{% endif %}>Drama</option>
+        </select>
+
+        <a href="{{ url_for('view_movie', movie_id=movie['id']) }}">View Movie</a>
+
+        <label for="language">Language:</label>
+        <input type="text" name="language" id="language" value="{{ request.args.get('language', '') }}" placeholder="Language">
+
+        <label for="release_date">Release Date:</label>
+        <input type="date" name="release_date" id="release_date" value="{{ request.args.get('release_date', '') }}">
+
+        <button type="submit">Filter</button>
+    </form>
+
+    <!-- Movies List -->
+    <div class="movies-list">
+        {% for movie in movies %}
+            <div class="movie-item">
+                <img src="data:image/png;base64,{{ movie['thumbnail'] }}" alt="Thumbnail" class="thumbnail">
+                <h2>{{ movie['title'] }}</h2>
+                <p><strong>Category:</strong> {{ movie['category'] }}</p>
+                <p><strong>Language:</strong> {{ movie['language'] }}</p>
+                <p><strong>Release Date:</strong> {{ movie['release_date'] }}</p>
+                <a href="{{ url_for('view_movie', movie_id=movie['id']) }}">View Movie</a>
+            </div>
+        {% else %}
+            <p>No movies found for the selected filters.</p>
+        {% endfor %}
+    </div>
+
+</body>
+</html>
