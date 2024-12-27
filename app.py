@@ -6,8 +6,6 @@ from io import BytesIO
 import sqlite3
 from datetime import datetime
 from flask import session
-from dotenv import load_dotenv
-load_dotenv()  # This will load variables from .env file into the environment
 
 
 app = Flask(__name__)
@@ -19,15 +17,12 @@ app.secret_key = "spotnet"
 # Database connection
 def get_db_connection():
     return pymysql.connect(
-        host=os.getenv('DB_HOST'),  # Ensure DB_HOST is set in .env or Vercel secrets
-        user=os.getenv('DB_USER'),
-        password=os.getenv('DB_PASSWORD'),
-        database=os.getenv('DB_NAME'),
-        port=int(os.getenv('DB_PORT', 3306)),
-        cursorclass=pymysql.cursors.DictCursor,
-        connect_timeout=10
+        host='127.0.0.1',
+        user='root',
+        password='Abhi@3014',
+        database='spotnet',
+        cursorclass=pymysql.cursors.DictCursor
     )
-
 
 
 # Routes
@@ -431,5 +426,4 @@ def dashboard():
     return render_template('dashboard.html', movies=movies, user=user, new_releases=new_releases, hindi_movies=hindi_movies, gujarati_movies=gujarati_movies)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
-
+    app.run(debug=True)
