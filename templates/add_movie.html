@@ -4,42 +4,108 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Movie | SpotNet</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/songs.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 </head>
 <body>
-    <h1>Add Movie</h1>
-    <form method="POST" enctype="multipart/form-data">
-        <label for="title">Movie Title:</label>
-        <input type="text" id="title" name="title" required>
+    <div class="main-content">
+        <h1><i class="fas fa-film"></i> Add Movie</h1>
 
-        <label for="description">Description:</label>
-        <textarea id="description" name="description" required></textarea>
+        <!-- Flash message for success -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="message">{{ messages[0] }}</div>
+            {% endif %}
+        {% endwith %}
 
-        <label for="visibility">Visibility:</label>
-        <select id="visibility" name="visibility">
-            <option value="all">All</option>
-            <option value="private">Private</option>
-        </select>
+        <form id="add-movie-form" action="/admin/add_movie" method="POST" enctype="multipart/form-data">
+    <label for="title">Movie Title:</label>
+    <input type="text" id="title" name="title" required>
 
-        <label for="movie_file">Upload Movie:</label>
-        <input type="file" id="movie_file" name="movie_file" required>
+    <label for="description">Description:</label>
+    <textarea id="description" name="description" required></textarea>
 
-        <label for="thumbnail_file">Upload Thumbnail:</label>
-        <input type="file" id="thumbnail_file" name="thumbnail_file" required>
+    <label for="visibility">Visibility:</label>
+    <select id="visibility" name="visibility">
+        <option value="all">All</option>
+        <option value="private">Private</option>
+    </select>
 
-        <label for="category">Category:</label>
-        <select id="category" name="category" required>
-            <option value="normal">Normal</option>
-            <option value="adult">Adult</option>
-        </select>
+    <label for="thumbnail_file">Upload Thumbnail:</label>
+    <input type="file" id="thumbnail_file" name="thumbnail_file" required>
 
-        <label for="language">Language:</label>
-        <input type="text" id="language" name="language" required>
+    <label for="category">Category:</label>
+    <select id="category" name="category" required>
+        {% for category in categories %}
+            <option value="{{ category['id'] }}">{{ category['name'] }}</option>
+        {% endfor %}
+    </select>
 
-        <label for="release_date">Release Date:</label>
-        <input type="date" id="release_date" name="release_date" required>
+    <label for="region">Region:</label>
+    <select id="region" name="region" required>
+        {% for region in regions %}
+            <option value="{{ region['id'] }}">{{ region['name'] }}</option>
+        {% endfor %}
+    </select>
 
-        <button type="submit">Add Movie</button>
-    </form>
+    <!-- Option to add a new region -->
+    <label for="new_region">New Region (if not listed):</label>
+    <input type="text" id="new_region" name="new_region" placeholder="Enter new region">
+
+    <label for="language">Language:</label>
+    <input type="text" id="language" name="language" required>
+
+    <label for="release_date">Release Date:</label>
+    <input type="date" id="release_date" name="release_date" required>
+
+    <label for="movie_file_path">Movie File Path:</label>
+    <input type="text" id="movie_file_path" name="movie_file_path" required>
+
+    <button type="submit">Add Movie</button>
+</form>
+
+
+
+        <!-- Progress bar container -->
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('add-movie-form');
+        const progressContainer = document.getElementById('progress-container');
+        const progressBar = document.getElementById('progress-bar');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+
+            progressContainer.style.display = 'block';
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/add_movie', true);
+
+            xhr.upload.addEventListener('progress', function(event) {
+                if (event.lengthComputable) {
+                    const percent = (event.loaded / event.total) * 100;
+                    progressBar.style.width = percent + '%';
+                }
+            });
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    alert('Movie added successfully!');
+                    window.location.href = "/dashboard";
+                } else {
+                    alert('Error uploading movie.');
+                }
+                progressContainer.style.display = 'none';
+            };
+
+            xhr.send(formData);
+        });
+    </script>
 </body>
 </html>
+

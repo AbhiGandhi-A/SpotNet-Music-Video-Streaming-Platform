@@ -17,9 +17,6 @@ body {
   padding: 0;
   background-color: var(--background-color);
   color: var(--text-color);
-  background: linear-gradient(45deg, #1a1a1a, #2c2c2c);
-  background-size: cover;
-  min-height: 100vh;
 }
 
 h1 {
@@ -32,72 +29,63 @@ h1 {
 /* Filter Form */
 .filter-form {
   background-color: var(--surface-color);
-  padding: 20px;
-  margin-bottom: 20px;
+  padding: 10px;
+  margin-bottom: 10px;
   border-radius: 10px;
   box-shadow: var(--card-shadow);
 }
 
-form {
+.filter-form form {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 15px;
 }
 
-form label {
+.filter-form label {
   font-size: 16px;
   font-weight: bold;
   margin-right: 5px;
   color: var(--text-color);
 }
 
-form select,
-form input,
-form button {
+.filter-form input,
+.filter-form select,
+.filter-form button {
   padding: 10px;
   font-size: 14px;
   border: 1px solid var(--primary-color);
   border-radius: 5px;
   background-color: var(--card-background);
   color: var(--text-color);
-  transition: all 0.3s ease;
 }
 
-form select:focus,
-form input:focus {
-  border-color: var(--secondary-color);
-  box-shadow: 0 0 5px rgba(3, 218, 198, 0.5);
-}
-
-form button {
+.filter-form button {
   background-color: var(--primary-color);
   color: var(--background-color);
   border: none;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  transition: background-color 0.3s ease;
 }
 
-form button:hover {
+.filter-form button:hover {
   background-color: var(--secondary-color);
-  transform: translateY(-2px);
 }
 
-form button:active {
-  transform: translateY(1px);
+/* Movies List */
+.movies-section {
+  padding: 20px;
 }
 
-/* Songs List */
-.songs-list {
+.movies-list {
   display: flex;
-  flex-wrap: wrap;
+  overflow-x: auto;
   gap: 20px;
-  justify-content: center;
   padding: 20px 0;
 }
 
-/* Individual Song Item */
-.song-item {
+/* Individual Movie Item */
+.movie-item {
   background: var(--card-background);
   border-radius: 10px;
   box-shadow: var(--card-shadow);
@@ -106,34 +94,33 @@ form button:active {
   width: 250px;
   flex: 0 0 auto;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  animation: fadeIn 0.5s ease-in-out;
 }
 
-.song-item:hover {
+.movie-item:hover {
   transform: translateY(-5px);
   box-shadow: var(--hover-shadow);
 }
 
 /* Thumbnail Styling */
-.song-item img {
+.thumbnail {
   width: 100%;
   height: 300px;
   object-fit: cover;
 }
 
-.song-item h2 {
+.movie-item h2 {
   font-size: 18px;
   color: var(--primary-color);
   margin: 10px 0;
 }
 
-.song-item p {
+.movie-item p {
   font-size: 14px;
   color: var(--text-color);
   margin: 5px 0;
 }
 
-.song-item a {
+.movie-item a {
   display: inline-block;
   margin: 10px 0;
   padding: 8px 15px;
@@ -144,54 +131,35 @@ form button:active {
   transition: background-color 0.3s ease;
 }
 
-.song-item a:hover {
+.movie-item a:hover {
   background-color: var(--primary-color);
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  form {
+  .filter-form form {
     flex-direction: column;
   }
 
-  form select,
-  form input,
-  form button {
+  .filter-form input,
+  .filter-form select,
+  .filter-form button {
     width: 100%;
   }
 
-  .songs-list {
+  .movies-list {
     flex-wrap: wrap;
     justify-content: center;
   }
 
-  .song-item {
+  .movie-item {
     width: calc(50% - 20px);
   }
 }
 
 @media (max-width: 480px) {
-  h1 {
-    font-size: 24px;
-  }
-
-  .song-item {
+  .movie-item {
     width: 100%;
-  }
-
-  form select,
-  form input {
-    width: 90%;
-  }
-}
-
-/* Animations */
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
   }
 }
 
@@ -237,9 +205,9 @@ form button:active {
   }
 }
 /* Add to Playlist Button */
-.song-item button {
-  margin: 0px;
-  padding: 9px 12px;
+button {
+  margin: 0;
+      padding: 11px 15px 8px 15px;
   background-color: var(--accent-color);
   color: var(--background-color);
   border: none;
@@ -249,7 +217,7 @@ form button:active {
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.song-item button:hover {
+button:hover {
   background-color: var(--secondary-color);
 }
 /* Modal Styles */

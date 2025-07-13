@@ -1,0 +1,144 @@
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    color: #ffffff;
+    background-color: #000;
+}
+
+/* Banner Section */
+header {
+    width: 100%;
+    height: 100vh; /* Full viewport height */
+    position: relative;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.banner {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.banner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(50%) blur(8px); /* Darken and blur the banner */
+}
+
+/* Website Name - Positioning it above the login form */
+.website-name {
+    position: absolute;
+    top: 1%; /* Positioning the website name above the form */
+    left: 50%;
+    transform: translateX(-50%); /* Center it horizontally */
+    color: #e50914;
+    font-size: 40px; /* Adjust text size */
+    font-family: 'Cursive', sans-serif;
+    text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+
+/* Form Container */
+.form-container {
+    position: absolute;
+    top: 50%; /* Centers the form vertically */
+    left: 50%;
+    transform: translate(-50%, -50%); /* Exact centering */
+    background: rgba(28, 28, 28, 0.8); /* Semi-transparent background */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    width: 320px;
+    z-index: 2;
+}
+
+/* Form Inputs and Button */
+form input, form button {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+form input {
+    background: #333333;
+    color: #ffffff;
+    border: 2px solid #444444;
+}
+
+form input:focus {
+    outline: none;
+    border-color: #e50914;
+}
+
+form button {
+    background: #e50914;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background 0.3s ease;
+}
+
+form button:hover {
+    background: #f40612;
+}
+
+/* Register Link Styling */
+form p {
+    color: #fff;
+    font-size: 14px;
+    margin-top: 20px; /* Adds space above the Register link */
+}
+
+form a {
+    color: #e50914;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+    display: inline-block;
+    margin-top: 10px;
+}
+
+form a:hover {
+    color: #f40612; /* Hover effect for the link */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .form-container {
+        width: 90%;
+    }
+
+    .website-name {
+        font-size: 35px; /* Slightly smaller for medium screens */
+    }
+}
+
+@media (max-width: 480px) {
+    .website-name {
+        font-size: 28px; /* Smaller for small screens */
+    }
+
+    .form-container {
+        width: 100%;
+    }
+
+    form input, form button {
+        padding: 12px;
+        font-size: 14px;
+    }
+}
+.error {
+    color: red;
+    font-weight: bold;
+}

@@ -1,90 +1,532 @@
-/* General Styling */
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
+:root {
+  --primary-color: #bb86fc;
+  --secondary-color: #03dac6;
+  --accent-color: #cf6679;
+  --background-color: #121212;
+  --surface-color: #1e1e1e;
+  --text-color: #ffffff;
+  --card-background: #2e2e2e;
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --hover-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
 }
 
-/* Movie Details */
+body {
+  font-family: 'Roboto', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
 .movie-details {
-    max-width: 800px;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 20px;
+  gap: 30px;
+  flex-wrap: wrap;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.movie-details::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1;
 }
 
 .movie-thumbnail {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
+  width: 300px;
+  height: auto;
+  border-radius: 10px;
+  border: 3px solid var(--primary-color);
+  transition: transform 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.movie-thumbnail:hover {
+  transform: scale(1.05);
+}
+
+.movie-info {
+  flex: 1;
+  padding: 20px;
+  background-color: var(--surface-color);
+  border-radius: 10px;
+  position: relative;
+  z-index: 2;
+  max-width: 600px;
+  box-shadow: var(--card-shadow);
 }
 
 h1 {
-    color: #333;
-    font-size: 2em;
-    margin-top: 20px;
+  font-size: 32px;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+p {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.movie-actions {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
 }
 
 .movie-actions button {
-    padding: 10px 20px;
-    margin: 5px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+  padding: 10px 20px;
+  font-size: 16px;
+  color: var(--background-color);
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .movie-actions button:hover {
-    background-color: #0056b3;
+  background-color: var(--secondary-color);
 }
 
-/* Song Section */
-.songs h3 {
-    color: #333;
-    margin-top: 20px;
-    font-size: 1.5em;
+.ratings, .comments, .songs {
+  margin-bottom: 40px;
 }
 
-.song-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 15px;
-    padding: 10px;
-    background-color: #f9f9f9;
-    border-radius: 6px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+h3 {
+  font-size: 24px;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+.ratings p, .comments p {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.songs .song-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 15px;
 }
 
 .song-name {
-    font-size: 1.1em;
-    color: #333;
-    flex-grow: 1;
+  font-size: 16px;
 }
 
 .btn-play, .btn-download {
-    padding: 8px 15px;
-    margin-left: 10px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
+  padding: 8px 15px;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.btn-play:hover, .btn-download:hover {
-    background-color: #218838;
+.btn-play {
+  background-color: var(--secondary-color);
+  color: var(--background-color);
+  border: none;
+}
+
+.btn-play:hover {
+  background-color: var(--primary-color);
 }
 
 .btn-download {
-    background-color: #17a2b8;
+  background-color: var(--primary-color);
+  color: var(--background-color);
+  text-decoration: none;
 }
 
 .btn-download:hover {
-    background-color: #138496;
+  background-color: var(--secondary-color);
+}
+
+#videoContainer, #audioPlayer {
+  width: 100%;
+  max-width: 800px;
+  margin-top: 20px;
+  display: block;
+  text-align: center;
+  background-color: var(--surface-color);
+  padding: 20px;
+  border-radius: 10px;
+  position: relative;
+  z-index: 2;
+  box-shadow: var(--card-shadow);
+}
+
+#videoPlayer {
+  width: 100%;
+  max-height: 450px;
+  border-radius: 10px;
+  background-color: black;
+  box-shadow: var(--card-shadow);
+}
+
+.video-player-wrapper {
+  position: relative;
+  padding-top: 56.25%; /* 16:9 aspect ratio */
+  background-color: black;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.video-player-wrapper #videoPlayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#audioPlayer {
+  width: 100%;
+  border-radius: 10px;
+  background-color: var(--card-background);
+  box-shadow: var(--card-shadow);
+  padding: 10px;
+}
+
+#audioPlayer::-webkit-media-controls-panel {
+  background-color: var(--card-background);
+}
+
+#audioPlayer::-webkit-media-controls-current-time-display,
+#audioPlayer::-webkit-media-controls-time-remaining-display {
+  color: var(--text-color);
+}
+
+#audioPlayer::-webkit-media-controls-play-button,
+#audioPlayer::-webkit-media-controls-mute-button {
+  background-color: var(--primary-color);
+  border-radius: 50%;
+}
+
+#audioPlayer::-webkit-media-controls-volume-slider {
+  background-color: var(--secondary-color);
+  border-radius: 25px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+#audioPlayer::-webkit-media-controls-timeline {
+  background-color: var(--secondary-color);
+  border-radius: 25px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+@media screen and (max-width: 768px) {
+  .movie-details {
+    flex-direction: column;
+    padding: 15px;
+  }
+
+  .movie-thumbnail {
+    width: 100%;
+    max-width: 300px;
+    margin-bottom: 20px;
+  }
+
+  .movie-info {
+    width: 100%;
+  }
+
+  .movie-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-play, .btn-download {
+    width: 100%;
+  }
+}
+.ratings {
+    margin-bottom: 40px;
+}
+
+h3 {
+    font-size: 24px;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.ratings p {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.rating-stars {
+    display: flex;
+    direction: ltr; /* Ensure stars are shown from left to right */
+}
+
+.rating-stars input[type="radio"] {
+    display: none; /* Hide the radio buttons */
+}
+
+.rating-stars label {
+    font-size: 30px;
+    color: #ccc; /* Default color for unselected stars */
+    cursor: pointer;
+    margin: 0 5px;
+    transition: color 0.3s ease;
+}
+
+.rating-stars label.gold {
+    color: gold; /* Apply gold color for selected stars */
+}
+
+button[type="submit"] {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: var(--background-color);
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button[type="submit"]:hover {
+    background-color: var(--secondary-color);
+}
+
+.comments-section {
+    margin-bottom: 40px;
+}
+
+.comments-section h3 {
+    font-size: 24px;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.comment {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.comment p {
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: black;  /* Set the comment text color to black */
+}
+
+.comment small {
+    font-size: 12px;
+    color: #888;
+}
+
+.comment-form textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    resize: vertical;
+}
+
+.comment-form button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: var(--background-color);
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.comment-form button:hover {
+    background-color: var(--secondary-color);
+}
+
+/* Styling for the comments section */
+.comments-section {
+    margin-top: 30px;
+}
+
+.recent-comment h4 {
+    font-size: 1.5em;
+    margin-bottom: 10px;
+}
+
+.comment {
+    margin-bottom: 10px;
+}
+
+.comment p {
+    font-size: 1.1em;
+    margin: 0;
+}
+
+.comment small {
+    font-size: 0.9em;
+    color: #888;
+}
+
+/* Styling for the 'View All Comments' button */
+#viewAllCommentsButton {
+    margin-top: 15px;
+    padding: 10px 20px;
+    font-size: 1em;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+/* Hover effect for the 'View All Comments' button */
+#viewAllCommentsButton:hover {
+    background-color: #0056b3;
+}
+
+/* Styling for the comment form */
+.comment-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+    resize: vertical;
+}
+
+.comment-form button {
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.1em;
+}
+
+/* Hover effect for the comment submit button */
+.comment-form button:hover {
+    background-color: #218838;
+}
+
+/* Styling for the scrollable comments container */
+.all-comments {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 15px;
+    background-color: #f9f9f9;
+}
+
+.all-comments .comment {
+    margin-bottom: 10px;
+}
+
+.all-comments .comment p {
+    font-size: 1em;
+}
+
+.all-comments .comment small {
+    font-size: 0.85em;
+    color: #555;
+}
+/* Styles for the Playlist Modal */
+.modal {
+    display: none; /* Initially hidden */
+    position: fixed;
+    z-index: 1000;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    background-color: rgba(0, 0, 0, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    color: white;
+    text-align: center;
+}
+
+.modal-content {
+    position: relative;
+    padding: 15px;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.close:hover {
+    color: red;
+}
+
+h2 {
+    margin-bottom: 15px;
+    font-size: 22px;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #555;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+ul li {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+ul li:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+button#addToPlaylistBtn {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin-top: 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+button#addToPlaylistBtn:hover {
+    background-color: #cc0000;
 }

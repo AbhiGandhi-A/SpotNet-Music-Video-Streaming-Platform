@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Subscription | SpotNet</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/subscription.css') }}">
+</head><h1>Subscription Options</h1>
+
+<div class="subscriptions">
+  {% for subscription in subscriptions %}
+  <div class="subscription" data-modal="modal-{{ subscription.id }}">
+    <h2>{{ subscription.name }}</h2>
+    <p>{{ subscription.description }}</p>
+    <p><strong>Price:</strong> ${{ subscription.price }}</p>
+    <p><strong>Duration:</strong> {{ subscription.duration_days }} days</p>
+  </div>
+  {% endfor %}
+</div>
+
+
+{% for subscription in subscriptions %}
+<div id="modal-{{ subscription.id }}" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>{{ subscription.name }}</h2>
+    <p>{{ subscription.description }}</p>
+    <p><strong>Price:</strong> ${{ subscription.price }}</p>
+    <p><strong>Duration:</strong> {{ subscription.duration_days }} days</p>
+    <form method="POST" action="{{ url_for('purchase_subscription') }}">
+      <input type="hidden" name="subscription_id" value="{{ subscription.id }}">
+      <button type="submit">Purchase</button>
+    </form>
+  </div>
+</div>
+{% endfor %}
+
+<script>
+  // JavaScript to handle modal functionality
+  document.querySelectorAll('.subscription').forEach(sub => {
+    sub.addEventListener('click', (e) => {
+      if (!e.target.closest('button')) {
+        const modalId = sub.getAttribute('data-modal');
+        document.getElementById(modalId).style.display = 'block';
+      }
+    });
+  });
+
+  document.querySelectorAll('.close').forEach(close => {
+    close.addEventListener('click', () => {
+      close.closest('.modal').style.display = 'none';
+    });
+  });
+
+  window.onclick = (event) => {
+    if (event.target.classList.contains('modal')) {
+      event.target.style.display = 'none';
+    }
+  };
+</script>
+</body>
+</html>

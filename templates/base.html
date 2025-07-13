@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <title>SpotNet | {% block title %}Dashboard{% endblock %}</title>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="profile" onclick="showProfileOptions()">
+            <img src="data:image/jpeg;base64,{{ user['profile_image'] }}" alt="Profile Image" class="profile-image">
+            <h2>{{ user['name'] }}</h2>
+        </div>
+        <a href="/logout">Logout</a>
+    </div>
+
+    <!-- Content Block -->
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Sticky Bottom Navbar -->
+    <div class="sticky-navbar">
+        <a href="{{ url_for('dashboard', username=user['username']) }}">Home</a>
+        <a href="{{ url_for('movies_page') }}">Movies</a>
+        <a href="{{ url_for('songs_page') }}">Songs</a>
+        <a href="/new_releases">New Releases</a>
+    </div>
+
+    <!-- Profile Options Popup -->
+    <div id="profile-options" class="profile-options" style="display:none;">
+        <button onclick="window.location.href='/add_movie'">Add Movie</button>
+        <button onclick="window.location.href='/add_song'">Add Song</button>
+        <button onclick="window.location.href='/add_thumbnail'">Add Thumbnail</button>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        function showProfileOptions() {
+            document.getElementById('profile-options').style.display = 'block';
+        }
+
+        function playMovie(movie_id) {
+            window.location.href = `/movie/${movie_id}/play`;
+        }
+
+        function downloadMovie(movie_id) {
+            window.location.href = `/movie/${movie_id}/download`;
+        }
+
+        function searchMovies() {
+            var input = document.getElementById('search-bar').value.toLowerCase();
+            var movieCards = document.getElementsByClassName('movie-card');
+            for (var i = 0; i < movieCards.length; i++) {
+                var title = movieCards[i].getElementsByTagName('h3')[0].innerText.toLowerCase();
+                if (title.indexOf(input) > -1) {
+                    movieCards[i].style.display = '';
+                } else {
+                    movieCards[i].style.display = 'none';
+                }
+            }
+        }
+
+        function filterCategory(category) {
+            window.location.href = `/dashboard?category=${category}`;
+        }
+    </script>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>

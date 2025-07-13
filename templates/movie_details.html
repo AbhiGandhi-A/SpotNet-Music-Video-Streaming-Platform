@@ -7,45 +7,118 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/details.css') }}">
 </head>
 <body>
-    <div class="movie-details">
+    <div class="movie-details" style="background-image: url('data:image/jpeg;base64,{{ movie['thumbnail'] }}');">
         <img src="data:image/jpeg;base64,{{ movie['thumbnail'] }}" alt="Movie Thumbnail" class="movie-thumbnail">
-        <h1>{{ movie['title'] }}</h1>
-        <p>{{ movie['description'] }}</p>
+        <div class="movie-info">
+            <h1>{{ movie['title'] }}</h1>
+            <p><strong>Description:</strong> {{ movie['description'] }}</p>
+            <p><strong>Language:</strong> {{ movie['language'] }}</p>
+            <p><strong>Category:</strong> {{ movie['category'] }}</p>
 
-        <div class="movie-actions">
-            <button onclick="playMovie({{ movie['id'] }})">Play</button>
-            <button onclick="downloadMovie({{ movie['id'] }})">Download</button>
+
+            <div class="movie-actions">
+                <button id="playButton" onclick="playMovie({{ movie['id'] }})">Play</button>
+                <button onclick="downloadMovie({{ movie['id'] }})">Download</button>
+                <button onclick="goBackToDashboard()" class="back-button">Back to Dashboard</button>
+                <!-- Add to Playlist Button -->
+                <button onclick="showPlaylistModal({{ movie['id'] }})" class="add-to-playlist-button">Add to Playlist</button>
+            </div>
+
+            <div class="ratings">
+    <h3>Ratings</h3>
+    {% if average_rating %}
+        <p>Rating: {{ average_rating | round(0) }} / 5 ({{ total_ratings }}{{ '' if total_ratings != 1 else '' }})</p>
+    {% else %}
+        <p>No ratings yet.</p>
+    {% endif %}
+
+    <h4>Add Rating</h4>
+    <form method="POST" action="{{ url_for('add_rating', movie_id=movie['id']) }}">
+        <div class="rating-stars">
+            <!-- Radio buttons for each star -->
+            <input type="radio" id="star1" name="rating" value="1" onclick="updateStars(1)"><label for="star1">&#9733;</label>
+            <input type="radio" id="star2" name="rating" value="2" onclick="updateStars(2)"><label for="star2">&#9733;</label>
+            <input type="radio" id="star3" name="rating" value="3" onclick="updateStars(3)"><label for="star3">&#9733;</label>
+            <input type="radio" id="star4" name="rating" value="4" onclick="updateStars(4)"><label for="star4">&#9733;</label>
+            <input type="radio" id="star5" name="rating" value="5" onclick="updateStars(5)"><label for="star5">&#9733;</label>
         </div>
+        <button type="submit">Submit Rating</button>
+    </form>
+</div>
 
-        <div class="ratings">
-            <h3>Ratings</h3>
-            {% for rating in ratings %}
-                <p>{{ rating['rating'] }} / 5</p>
-            {% else %}
-                <p>No ratings yet.</p>
-            {% endfor %}
+
+            <div class="comments-section">
+    <h3>Comments</h3>
+
+    <!-- Display the most recent comment -->
+    {% if comments %}
+        <div class="recent-comment">
+            <h4>Most Recent Comment</h4>
+            <div class="comment">
+                <p><strong>{{ comments[0].username }}:</strong> {{ comments[0].comment | e }}</p>
+                <small>{{ comments[0].timestamp }}</small>
+            </div>
         </div>
+    {% else %}
+        <p>No comments available.</p>
+    {% endif %}
 
-        <div class="comments">
-            <h3>Comments</h3>
+    <!-- Button to toggle visibility of all comments -->
+    <button id="viewAllCommentsButton" onclick="toggleComments()">View All Comments</button>
+
+    <!-- Scrollable container for all comments -->
+    <div id="allCommentsContainer" class="all-comments" style="display:none; max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
+        {% if comments %}
             {% for comment in comments %}
-                <p>{{ comment['comment'] }}</p>
-            {% else %}
-                <p>No comments yet.</p>
+                <div class="comment">
+                    <p><strong>{{ comment.username }}:</strong> {{ comment.comment | e }}</p>
+                    <small>{{ comment.timestamp }}</small>
+                </div>
             {% endfor %}
+        {% else %}
+            <p>No comments available.</p>
+        {% endif %}
+    </div>
+</div>
+
+
+            <h4>Add a Comment</h4>
+            <form class="comment-form" method="POST" action="{{ url_for('add_comment', movie_id=movie['id']) }}">
+                <textarea name="comment" placeholder="Write your comment here" required></textarea>
+                <button type="submit">Submit Comment</button>
+            </form>
+
+            <div class="songs">
+                <h3>Songs</h3>
+                {% for song in songs %}
+                    <div class="song-item">
+                        <span class="song-name">{{ song['song_name'] }}</span>
+                        <button class="btn-play" onclick="playSong({{ song['id'] }}, this)">Play</button>
+                        <a href="{{ url_for('download_song', song_id=song['id']) }}" class="btn-download">Download</a>
+                    </div>
+                {% else %}
+                    <p>No songs available.</p>
+                {% endfor %}
+            </div>
         </div>
 
-        <div class="songs">
-            <h3>Songs</h3>
-            {% for song in songs %}
-                <div class="song-item">
-                    <span class="song-name">{{ song['song_name'] }}</span>
-                    <button class="btn-play" onclick="playSong({{ song['id'] }})">Play</button>
-                    <a href="{{ url_for('download_song', song_id=song['id']) }}" class="btn-download">Download</a>
-                </div>
-            {% else %}
-                <p>No songs available.</p>
-            {% endfor %}
+
+        <div id="playlistModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="closePlaylistModal()">&times;</span>
+        <h2>Select a Playlist</h2>
+        <ul id="playlistList"></ul>
+        <button id="addToPlaylistBtn" onclick="addToPlaylist()">Add to Playlist</button>
+    </div>
+</div>
+
+        <!-- Hidden video element to play movies -->
+        <div id="videoContainer" style="display: none;">
+            <div class="video-player-wrapper">
+                <video id="videoPlayer" controls>
+                    Your browser does not support the video element.
+                </video>
+            </div>
         </div>
 
         <!-- Hidden audio element to play songs -->
@@ -55,25 +128,144 @@
     </div>
 
     <script>
+        function goBackToDashboard() {
+    window.location.href = "{{ url_for('dashboard', username=session.get('user')) }}";
+}
+
         function playMovie(movie_id) {
-            window.location.href = `/movie/${movie_id}/play`;
+            console.log('Playing movie with ID:', movie_id);  // Debugging line to check the movie ID
+
+            // Show the video player container
+            const videoContainer = document.getElementById('videoContainer');
+            videoContainer.style.display = "block"; // Display the video player below the play button
+
+            const videoPlayer = document.getElementById('videoPlayer');
+            videoPlayer.src = `/movie/${movie_id}/play`;  // Assuming the backend sends the movie file
+            videoPlayer.play();
         }
 
         function downloadMovie(movie_id) {
+            console.log('Downloading movie with ID:', movie_id);  // Debugging line to check the movie ID
             window.location.href = `/movie/${movie_id}/download`;
         }
 
-        function playSong(song_id) {
-            // Find the audio player element
-            const audioPlayer = document.getElementById('audioPlayer');
+        function playSong(song_id, button) {
+    // Locate or create the audio player element dynamically
+    let audioPlayer = document.getElementById('audioPlayer');
+    if (!audioPlayer) {
+        // Create the audio player if it doesn't exist
+        audioPlayer = document.createElement('audio');
+        audioPlayer.id = 'audioPlayer';
+        audioPlayer.controls = true; // Enable playback controls
+    }
 
-            // Set the source of the audio player to the song URL (you should provide the correct URL for the song)
-            audioPlayer.src = `/song/${song_id}/play`;  // Assuming you have a route that serves the song
+    // Set the source of the audio player to the selected song's URL
+    audioPlayer.src = `/song/${song_id}/play`;
 
-            // Play the song
-            audioPlayer.style.display = "block";  // Show the audio player
-            audioPlayer.play();
+    // Position the audio player directly below the clicked button
+    const buttonParent = button.parentNode; // Get the parent element of the button
+    buttonParent.appendChild(audioPlayer); // Append the audio player to this element
+
+    // Ensure the audio player is visible and starts playing
+    audioPlayer.style.display = 'block';
+    audioPlayer.play();
+}
+
+ let selectedMovieId = null;
+
+    // Show the playlist modal when Add to Playlist is clicked
+    function showPlaylistModal(movieId) {
+        selectedMovieId = movieId;
+        fetchPlaylists();
+        document.getElementById('playlistModal').style.display = "block";
+    }
+
+    // Close the playlist modal
+    function closePlaylistModal() {
+        document.getElementById('playlistModal').style.display = "none";
+    }
+
+    // Fetch playlists from the backend
+    function fetchPlaylists() {
+        const username = "{{ session.get('user') }}";  // Get the current username from the session
+        fetch(`/get_playlists?username=${username}`)
+            .then(response => response.json())
+            .then(data => {
+                const playlistList = document.getElementById('playlistList');
+                playlistList.innerHTML = '';  // Clear existing list
+                data.forEach(playlist => {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `<input type="radio" name="playlist" value="${playlist.id}"> ${playlist.name}`;
+                    playlistList.appendChild(listItem);
+                });
+            })
+            .catch(error => console.error('Error fetching playlists:', error));
+    }
+
+    // Add the movie or song to the selected playlist
+    function addToPlaylist() {
+        const selectedPlaylist = document.querySelector('input[name="playlist"]:checked');
+        if (!selectedPlaylist) {
+            alert('Please select a playlist.');
+            return;
         }
+
+        const playlistId = selectedPlaylist.value;
+        const username = "{{ session.get('user') }}";  // Get the current username from the session
+
+        fetch('/add_to_playlist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: username,
+                playlist_id: playlistId,
+                item_id: selectedMovieId,
+                item_type: 'movie'  // 'movie' or 'song' depending on the item
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            closePlaylistModal();
+        })
+        .catch(error => console.error('Error adding to playlist:', error));
+    }
+
+        function updateStars(starCount) {
+    const stars = document.querySelectorAll('.rating-stars label');  // Select all the star labels
+    stars.forEach((star, index) => {
+        if (index < starCount) {
+            // Add the 'gold' class to highlight stars in gold
+            star.classList.add('gold');
+        } else {
+            // Remove the 'gold' class from the remaining stars
+            star.classList.remove('gold');
+        }
+    });
+}
+
+function toggleComments() {
+        const container = document.getElementById("allCommentsContainer");
+        const button = document.getElementById("viewAllCommentsButton");
+        if (container.style.display === "none") {
+            container.style.display = "block";
+            button.innerText = "Hide All Comments";
+        } else {
+            container.style.display = "none";
+            button.innerText = "View All Comments";
+        }
+    }
+
+
+        document.querySelector("form").addEventListener("submit", function(event) {
+            const rating = document.querySelector('input[name="rating"]:checked');
+            if (!rating) {
+                alert("Please select a rating.");
+                event.preventDefault();  // Prevent form submission
+            }
+        });
     </script>
 </body>
 </html>

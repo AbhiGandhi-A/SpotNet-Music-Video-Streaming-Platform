@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Song</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/songs.css') }}">
+</head>
+<body>
+    <div class="container">
+        <p><strong>Movie:</strong> {{ song['movie_title'] }}</p>
+        {% if movie_poster %}
+            <img src="data:image/jpeg;base64,{{ movie_poster }}" alt="Movie Poster" width="300">
+        {% else %}
+            <p>No poster available</p>
+        {% endif %}
+        <h1>{{ song['title'] }}</h1>
+
+        <p><strong>Language:</strong> {{ song['language'] }}</p>
+        <p><strong>Release Date:</strong> {{ song['release_date'] }}</p>
+
+        <h3>Song File:</h3>
+        <audio controls>
+            <source src="{{ url_for('play_song', song_id=song['id']) }}" type="audio/mp3">
+            Your browser does not support the audio element.
+        </audio>
+
+        <!-- Add to Playlist Button -->
+        <button onclick="addToPlaylist({{ song['id'] }})">Add to Playlist</button>
+
+        <a href="{{ url_for('songs_page') }}">Back to Songs</a>
+    </div>
+
+    <script>
+        function addToPlaylist(song_id) {
+            const playlist_id = 1;  // Example playlist_id (you can dynamically set this based on user selection)
+
+            // Send a request to add the song to the playlist
+            fetch(`/song/${song_id}/add_to_playlist`, {
+                method: 'POST',
+                body: JSON.stringify({ username: "username_placeholder", playlist_id: playlist_id }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert('Song added to your playlist!');
+                } else {
+                    alert('Failed to add song to playlist.');
+                }
+            })
+            .catch(error => {
+                console.error('Error adding song to playlist:', error);
+                alert('An error occurred. Please try again.');
+            });
+        }
+    </script>
+</body>
+</html>

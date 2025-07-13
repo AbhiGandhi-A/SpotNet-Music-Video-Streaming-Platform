@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ playlist['name'] }} | SpotNet</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/playlist.css') }}">
+    <style>
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 15% auto;
+    padding: 20px;
+    width: 50%;
+    text-align: center;
+}
+
+.close {
+    color: red;
+    float: right;
+    font-size: 28px;
+    cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+    <h2>{{ playlist['name'] }}</h2>
+    <a href="{{ url_for('playlists_page', username=session.get('user')) }}" class="back-button">Back to Playlists</a>
+
+    <div class="sticky-navbar">
+        <a href="{{ url_for('dashboard', username=session.get('user')) }}">Home</a>
+        <a href="{{ url_for('movies_page') }}">Movies</a>
+        <a href="{{ url_for('songs_page') }}">Songs</a>
+        <a href="{{ url_for('live_movie_page') }}" class="live-stream-button" id="liveMovieButton">Watch Live Movie</a>
+        <a href="{{ url_for('playlists_page', username=session.get('user')) }}">Playlists</a>
+        <a href="{{ url_for('chat', username=session.get('user')) }}" class="chat-btn">Watch Together</a>
+    </div>
+
+    <div class="playlist-content">
+        {% if items %}
+            <ul id="playlist-items">
+                {% for item in items %}
+                    <li id="item-{{ item['id'] }}">
+                        {% if item['movie_title'] %}
+    🎬 {{ item['movie_title'] }}
+    <button onclick="playMovie({{ item['movie_id'] }})">Play</button>
+    <button onclick="removeItem({{ item['id'] }}, 'movie', {{ item['movie_id'] }})">Remove</button>
+{% else %}
+    🎵 {{ item['song_title'] }}
+    <button onclick="playSong({{ item['song_id'] }})">Play</button>
+    <button onclick="addToQueue({{ item['song_id'] }})">Add to Queue</button>
+    <button onclick="removeItem({{ item['id'] }}, 'song', {{ item['song_id'] }})">Remove</button>
+{% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No items in this playlist.</p>
+        {% endif %}
+    </div>
+
+    <div class="playlist-actions">
+        <button onclick="playAllSongs()">Play All</button>
+    </div>
+
+
+    <div id="audio-player-container" style="display:none;">
+        <audio id="audio-player" controls>
+            <source id="audio-source" src="" type="audio/mp3">
+            Your browser does not support the audio element.
+        </audio>
+        <div>
+            <button onclick="volumeUp()">Volume Up</button>
+            <button onclick="volumeDown()">Volume Down</button>
+        </div>
+    </div>
+
+    <div id="queue-container" style="display:none;">
+    <h3>🎶 Queue List</h3>
+    <ul id="queue-list"></ul>
+</div>
+
+   <div class="media-list-container">
+        <div class="media-list">
+            <h3>Movies</h3>
+            <div class="media-items-scroll">
+                {% for movie in movies %}
+                    <div class="media-item">
+                        {% if movie['thumbnail'] %}
+                            <img src="data:image/jpeg;base64,{{ movie['thumbnail'] }}" alt="{{ movie['title'] }}">
+                        {% else %}
+                            <div class="no-thumbnail">No Image</div>
+                        {% endif %}
+                        <h4>{{ movie['title'] }}</h4>
+                        <button onclick="addToPlaylist({{ movie['id'] }}, 'movie')">Add to Playlist</button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="media-list">
+            <h3>Songs</h3>
+            <div class="media-items-scroll">
+                {% for song in songs %}
+                    <div class="media-item">
+                        {% if song['thumbnail'] %}
+                            <img src="data:image/jpeg;base64,{{ song['thumbnail'] }}" alt="{{ song['title'] }}">
+                        {% else %}
+                            <div class="no-thumbnail">No Image</div>
+                        {% endif %}
+                        <h4>{{ song['title'] }}</h4>
+                        <button onclick="addToPlaylist({{ song['id'] }}, 'song')">Add to Playlist</button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div id="playlistModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>Select a Playlist</h3>
+            <div id="playlistContainer"></div>
+            <button onclick="createNewPlaylistPrompt()">Create New Playlist</button>
+        </div>
+    </div>
+
+    <script>
+        let queue = [];  // Queue to hold song IDs
+        let currentSongIndex = 0;
+
+        function removeItem(itemId, itemType, actualId) {
+    if (confirm("Are you sure you want to remove this item?")) {
+        fetch(`/playlist/{{ playlist.id }}/remove_item`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ actual_id: actualId, item_type: itemType })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message === "Item removed from playlist successfully") {
+                const itemElement = document.getElementById(`item-${itemId}`);
+                if (itemElement) {
+                    itemElement.remove();
+                }
+                alert(data.message);
+            } else {
+                alert("Failed to remove item");
+            }
+        })
+        .catch(error => {
+            alert("Error removing item");
+            console.error("Remove item error:", error);
+        });
+    }
+}
+
+
+
+        function playMovie(movieId) {
+            window.location.href = `/movie/${movieId}/play`;
+        }
+
+        function playSong(songId) {
+            fetch(`/song/${songId}/play`)
+                .then(response => response.blob())
+                .then(blob => {
+                    const audioPlayer = document.getElementById('audio-player');
+                    const audioSource = document.getElementById('audio-source');
+                    audioSource.src = URL.createObjectURL(blob);
+                    audioPlayer.load();
+                    audioPlayer.play();
+                    document.getElementById('audio-player-container').style.display = 'block';
+                    document.getElementById('queue-container').style.display = 'none'; // Hide queue when playing song
+                })
+                .catch(error => {
+                    console.error("Error fetching audio:", error);
+                });
+        }
+
+        function playAllSongs() {
+            const songs = Array.from(document.querySelectorAll('li')).filter(item => item.innerText.includes('🎵'));
+            queue = songs.map(song => {
+                return song.querySelector('button').getAttribute('onclick').match(/\d+/)[0]; // Extract song ID
+            });
+            currentSongIndex = 0;
+            document.getElementById('queue-container').style.display = 'block'; // Show the queue list
+            populateQueueList();
+            playNextSong();
+        }
+
+        function addToQueue(songId) {
+    if (!queue.includes(songId)) {
+        queue.push(songId);
+        alert("Song added to queue");
+        document.getElementById('queue-container').style.display = 'block';  // Show queue list
+        populateQueueList();
+    }
+}
+
+function populateQueueList() {
+    const queueList = document.getElementById('queue-list');
+    queueList.innerHTML = '';  // Clear the queue list
+
+    queue.forEach((songId, index) => {
+        const li = document.createElement('li');
+        li.textContent = `🎵 Song ${songId}`;
+
+        // Remove Button
+        const removeButton = document.createElement('button');
+        removeButton.textContent = "❌ Remove";
+        removeButton.onclick = () => {
+            removeFromQueue(songId);
+        };
+
+        // Append remove button to list item
+        li.appendChild(removeButton);
+        queueList.appendChild(li);
+    });
+
+    // Show the queue container
+    document.getElementById('queue-container').style.display = 'block';
+
+    // Add Play Queue Button if it doesn't exist
+    let playQueueButton = document.getElementById('play-queue-btn');
+    if (!playQueueButton) {
+        playQueueButton = document.createElement('button');
+        playQueueButton.textContent = "▶ Play Queue";
+        playQueueButton.id = "play-queue-btn";
+        playQueueButton.onclick = playQueue;
+        document.getElementById('queue-container').appendChild(playQueueButton);
+    }
+}
+
+function removeFromQueue(songId) {
+    const index = queue.indexOf(songId);
+    if (index !== -1) {
+        queue.splice(index, 1);
+        alert("Song removed from queue");
+        populateQueueList();
+
+        // Hide queue container if empty
+        if (queue.length === 0) {
+            document.getElementById('queue-container').style.display = 'none';
+        }
+    }
+}
+
+function playQueue() {
+    if (queue.length === 0) {
+        alert("Queue is empty! Add songs first.");
+        return;
+    }
+
+    currentSongIndex = 0;
+    playNextSong();
+}
+
+function playNextSong() {
+    if (currentSongIndex < queue.length) {
+        const songId = queue[currentSongIndex];
+        fetch(`/song/${songId}/play`)
+            .then(response => response.blob())
+            .then(blob => {
+                const audioPlayer = document.getElementById('audio-player');
+                const audioSource = document.getElementById('audio-source');
+                audioSource.src = URL.createObjectURL(blob);
+                audioPlayer.load();
+                audioPlayer.play();
+                document.getElementById('audio-player-container').style.display = 'block';
+
+                currentSongIndex++;
+                audioPlayer.onended = playNextSong;  // Auto-play next song in queue
+            })
+            .catch(error => {
+                console.error("Error fetching audio:", error);
+            });
+    } else {
+        alert("Queue finished!");
+        document.getElementById('audio-player-container').style.display = 'none';
+    }
+}
+
+
+
+
+
+        function volumeUp() {
+            const audioPlayer = document.getElementById('audio-player');
+            if (audioPlayer.volume < 1) {
+                audioPlayer.volume += 0.1;
+            }
+        }
+
+        function volumeDown() {
+            const audioPlayer = document.getElementById('audio-player');
+            if (audioPlayer.volume > 0) {
+                audioPlayer.volume -= 0.1;
+            }
+        }
+
+        function addToPlaylist(itemId, itemType) {
+            fetch(`/get_playlists?username={{ session.get('user') }}`)
+                .then(response => response.json())
+                .then(playlists => {
+                    let playlistContainer = document.getElementById("playlistContainer");
+                    playlistContainer.innerHTML = "";
+
+                    if (playlists.length === 0) {
+                        playlistContainer.innerHTML = "<p>No playlists found.</p>";
+                    } else {
+                        playlists.forEach(playlist => {
+                            let btn = document.createElement("button");
+                            btn.textContent = playlist.name;
+                            btn.onclick = function() {
+                                saveToPlaylist(playlist.id, itemId, itemType);
+                            };
+                            playlistContainer.appendChild(btn);
+                        });
+                    }
+
+                    document.getElementById("playlistModal").style.display = "block";
+                })
+                .catch(error => {
+                    console.error("Error fetching playlists:", error);
+                    alert("Failed to fetch playlists.");
+                });
+        }
+
+        function saveToPlaylist(playlistId, itemId, itemType) {
+            fetch('/add_to_playlist', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: "{{ session.get('user') }}",
+                    playlist_id: playlistId,
+                    item_id: itemId,
+                    item_type: itemType
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                closeModal();
+            })
+            .catch(error => {
+                console.error("Error adding to playlist:", error);
+                alert("Failed to add to playlist.");
+            });
+        }
+
+        function createNewPlaylistPrompt() {
+            let playlistName = prompt("Enter the new playlist name:");
+            if (playlistName) {
+                fetch('/create_playlist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        username: "{{ session.get('user') }}",
+                        playlist_name: playlistName
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    addToPlaylist(itemId, itemType);
+                })
+                .catch(error => {
+                    console.error("Error creating playlist:", error);
+                    alert("Failed to create playlist.");
+                });
+            }
+        }
+
+        function closeModal() {
+            document.getElementById("playlistModal").style.display = "none";
+        }
+    </script>
+
+</body>
+</html>

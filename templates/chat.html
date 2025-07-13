@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpotNet - Chat & Watch Together</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="sidebar-icons">
+                <i class="fas fa-search active" id="search-icon"></i>
+                <i class="fas fa-comment-dots" id="chat-icon"></i>
+            </div>
+            <div id="combined-panel" class="panel active">
+                <div id="search-panel" class="sub-panel">
+                    <h3>Search Users</h3>
+                    <div class="search-bar">
+                        <input type="text" id="search-input" placeholder="Search users...">
+                        <div id="search-results"></div>
+                    </div>
+                </div>
+                <div id="friends-panel" class="sub-panel">
+                    <h3>Friend Requests</h3>
+                    <div id="friend-requests-list"></div>
+                    <h3>Friends</h3>
+                    <div id="friends-list"></div>  </div>
+                <div id="notifications-panel" class="sub-panel">
+                    <h3>Notifications</h3>
+                    <div id="notifications-list"></div>
+                </div>
+            </div>
+
+            <div id="chat-panel" class="panel">
+                <h3>Chat</h3>
+                <div class="chat-area" id="chat-messages"></div>
+                <div class="chat-input">
+                    <input type="text" id="chat-input-box" placeholder="Type a message...">
+                    <button id="send-message">Send</button>
+                </div>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="video-container">
+                <video id="movie-player" controls></video>
+            </div>
+        </div>
+    </div>
+
+    <div id="movie-invite-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Select a Movie</h3>
+            <div id="movie-list"></div>
+            <div id="selected-movie-info"></div>  <button id="send-movie-invite">Send Invitation</button>
+        </div>
+    </div>
+    </div>
+
+    <div class="sticky-navbar">
+    <a href="{{ url_for('dashboard', username=session.get('user')) }}">Home</a>
+    <a href="{{ url_for('movies_page') }}">Movies</a>
+    <a href="{{ url_for('songs_page') }}">Songs</a>
+    <a href="{{ url_for('live_movie_page') }}" class="live-stream-button" id="liveMovieButton">Watch Live Movie</a>
+    <a href="{{ url_for('playlists_page', username=session.get('user')) }}">Playlists</a> <!-- Corrected here -->
+<a href="{{ url_for('chat', username=session.get('user')) }}" class="chat-btn">Watch Together</a>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+
+    <script>
+
+        const socket = io();
+        const userId = "{{ user_id }}";
+        const username = "{{ username }}";
+        let currentRoom = null;
+        let selectedMovieId = null;
+        let selectedFriendId = null;
+        let currentSessionId = null;
+        let currentRoomId = null;
+        let videoPlayer;
+        let isSender = false;
+        let moviePath;
+
+// Search Users
+$("#search-input").on("input", function () {
+  const query = $(this).val()
+  if (query.length < 2) {
+    $("#search-results").empty()
+    return
+  }
+  $.get("/search_users", { query: query }, (users) => {
+        $("#search-results").empty();
+
+        users.forEach((user) => {
+            const userDiv = $(`<div>${user.name} (@${user.username})</div>`);
+            $("#search-results").append(userDiv);
+
+            let buttonHtml;
+            if (user.request_status === "pending" || user.received_request_status === "pending") { // Check if the request is pending from either side
+                buttonHtml = `<button class="add-friend pending" data-id="${user.id}" disabled>Pending</button>`;
+            } else if (user.request_status === "accepted" || user.received_request_status === "accepted" || user.is_friend === 1) { // Check if the request is accepted from either side or users are friends
+                buttonHtml = `<button class="add-friend accepted" data-id="${user.id}" disabled>Friends</button>`;
+            } else {
+                buttonHtml = `<button class="add-friend" data-id="${user.id}">Add Friend</button>`;
+            }
+            userDiv.append(buttonHtml);
+        });
+    });
+});
+
+// Send Friend Request
+$(document).on("click", ".add-friend", function () {
+  const receiverId = $(this).data("id")
+  $.ajax({
+    url: "/send_friend_request",
+    method: "POST",
+    contentType: "application/json",
+    data: JSON.stringify({ receiver_id: receiverId }),
+    success: function (response) {
+      alert(response.message)
+      $(this).text("Pending").prop("disabled", true)
+    },
+    error: (xhr, status, error) => {
+      console.error("Error sending friend request:", error)
+      alert("Failed to send friend request. Please try again.")
+    },
+  })
+})
+
+// Load Friend Requests
+function loadFriendRequests() {
+  $.get("/friend_requests", (requests) => {
+    let html = ""
+    requests.forEach((request) => {
+      html += `<div>
+                ${request.name} (@${request.username})
+                <button class="accept-friend" data-id="${request.sender_id}">Accept</button>
+            </div>`
+    })
+    $("#friend-requests-list").html(html)
+  })
+}
+
+// Accept Friend Request
+$(document).on("click", ".accept-friend", function () {
+  const senderId = $(this).data("id")
+  $.ajax({
+    url: "/accept_friend_request",
+    method: "POST",
+    contentType: "application/json",
+    data: JSON.stringify({ request_id: senderId }),
+    success: (response) => {
+      alert(response.message)
+      loadFriendRequests()
+      loadFriends()
+    },
+    error: (xhr, status, error) => {
+      console.error("Error accepting friend request:", error)
+      alert("Failed to accept friend request. Please try again.")
+    },
+  })
+})
+
+// Load Friends
+function loadFriends() {
+  $.get("/friend_list", (friends) => {
+    let html = ""
+    friends.forEach((friend) => {
+      html += `<div>
+                ${friend.name} (@${friend.username})
+                <button class="chat-with-friend" data-id="${friend.id}">Chat</button>
+                <button class="invite-to-movie" data-id="${friend.id}">Invite</button>
+            </div>`
+    })
+    $("#friends-list").html(html)
+  })
+}
+
+// Chat with Friend
+ const sendMessage = function () {
+            const message = $("#chat-input-box").val();
+            if (message && currentRoom) {
+                socket.emit("message", { room: currentRoom, username: username, message: message });
+                $("#chat-input-box").val("");
+            }
+        };
+
+        $("#chat-input-box").keypress(function(event) {
+            if (event.which === 13) { // 13 is the Enter key code
+                event.preventDefault(); // Prevent the default form submission
+                sendMessage();
+            }
+        });
+
+        $("#send-message").click(sendMessage); // Keep the button click functionality as well
+
+
+        $(document).on("click", ".chat-with-friend", function () {
+            const friendId = $(this).data("id");
+
+            $.get("/get_chat_room_name", { user1: userId, user2: friendId }, (data) => {
+                currentRoom = data.room_name;
+                const roomId = data.room_id;
+
+                // 1. Show the chat panel
+                showPanel(chatPanel);  // Call the showPanel function
+
+                // 2. Proceed with joining the room and loading messages (as before)
+                console.log("Joining chat room:", currentRoom, "Room ID:", roomId);
+
+                socket.emit("join", { username: username, room: currentRoom }, () => {
+                    console.log("Join request sent for:", currentRoom);
+                });
+
+                socket.once('joined', (joinedData) => {
+                    if (joinedData.room === currentRoom) {
+                        console.log("Successfully joined:", currentRoom);
+                        $("#chat-messages").empty();
+
+                        $.get(`/get_messages/${roomId}`, (messages) => {
+                            messages.forEach(msg => {
+                                $("#chat-messages").append(`<p><strong>${msg.sender}:</strong> ${msg.message}</p>`);
+                            });
+                            $("#chat-messages").scrollTop($("#chat-messages")[0].scrollHeight);
+                        });
+
+                        $("#send-message").off("click").on("click", sendMessage);
+                    }
+                });
+            });
+        });
+
+const searchIcon = document.getElementById('search-icon');
+const chatIcon = document.getElementById('chat-icon');
+const combinedPanel = document.getElementById('combined-panel');
+const chatPanel = document.getElementById('chat-panel');
+const searchPanel = document.getElementById('search-panel');
+const friendsPanel = document.getElementById('friends-panel');
+const notificationsPanel = document.getElementById('notifications-panel');
+
+
+searchIcon.addEventListener('click', () => {
+    combinedPanel.classList.add('active');
+    chatPanel.classList.remove('active');
+    searchIcon.classList.add('active');
+    chatIcon.classList.remove('active');
+});
+
+chatIcon.addEventListener('click', () => {
+    chatPanel.classList.add('active');
+    combinedPanel.classList.remove('active');
+    chatIcon.classList.add('active');
+    searchIcon.classList.remove('active');
+});
+
+function showPanel(panelToShow) {
+    const allPanels = [searchPanel, friendsPanel, notificationsPanel, chatPanel, combinedPanel];
+    allPanels.forEach(panel => {
+        if (panel === panelToShow) {
+            panel.classList.add('active');
+        } else {
+            panel.classList.remove('active');
+        }
+    });
+
+    const allIcons = [searchIcon, chatIcon];
+    allIcons.forEach(icon => {
+      icon.classList.remove('active');
+    });
+    if (panelToShow !== chatPanel) {
+        searchIcon.classList.add('active');
+    } else {
+        chatIcon.classList.add('active');
+    }
+
+}
+
+searchIcon.addEventListener('click', () => showPanel(combinedPanel));
+chatIcon.addEventListener('click', () => showPanel(chatPanel));
+
+showPanel(combinedPanel);
+
+socket.on("connect", () => {
+            console.log("Connected to server!"); // Confirmation message
+
+            // Remove previous listener before adding a new one
+            socket.off("message").on("message", (data) => {
+                console.log("Received message:", data);
+
+                if (data && data.room === currentRoom) { // Check if data and room are valid
+                    console.log("Appending message:", data);
+                    $("#chat-messages").append(`<p><strong>${data.username}:</strong> ${data.message}</p>`);
+                    $("#chat-messages").scrollTop($("#chat-messages")[0].scrollHeight);
+                } else {
+                    console.log("Message from a different room or invalid data:", data);
+                }
+            });
+
+
+            socket.on('movie_invitation_accepted', (data) => {
+              if (data.receiver_id !== userId) { // Check if it's not the current user
+            loadNotifications(); // Reload notifications for the sender
+              }
+            });
+            // Join the user's personal room (for notifications, etc.)
+            currentRoom = `user_${userId}`;  // or whatever logic you use for personal room names
+            socket.emit("join", { username: username, user_id: userId, room: currentRoom }, () => {
+                console.log("Joined personal room:", currentRoom);
+            });
+
+
+             // Listen for room messages (if you use this for something)
+            socket.on('room_message', (data) => {
+                console.log("Room message:", data);
+            });
+
+        });
+
+
+// Invite to Movie
+$(document).on("click", ".invite-to-movie", function () {
+            selectedFriendId = $(this).data("id");
+            $.get("/retrieve_movies", (movies) => {
+                let html = "";
+                movies.forEach((movie) => {
+                    html += `<div>
+                                <img src="${movie.poster_url}" alt="${movie.title}" style="width: 50px; height: 75px;">
+                                ${movie.title}
+                                <button class="select-movie" data-id="${movie.id}" data-path="${movie.file_path}">Select</button>
+                            </div>`;
+                });
+                $("#movie-list").html(html);
+                $("#movie-invite-modal").show();
+            });
+        });
+
+// Select Movie
+$(document).on("click", ".select-movie", function () {
+            $(".select-movie").removeClass("selected"); // Remove 'selected' class from all buttons
+            $(".select-movie").text("Select"); // Reset button text
+            $(this).addClass("selected"); // Add 'selected' class to the clicked button
+            $(this).text("Selected"); // Change the clicked button text to "Selected"
+            selectedMovieId = $(this).data("id");
+            moviePath = $(this).data("path");
+
+            const movieTitle = $(this).parent().find("img").attr("alt");
+            $("#selected-movie-info").html(`<p>Selected Movie: <strong>${movieTitle}</strong></p>`);
+        });
+
+// Send Movie Invitation
+$("#send-movie-invite").click(() => {
+    if (!selectedMovieId) {
+        alert("Please select a movie first.");
+        return;
+    }
+    $.ajax({
+        url: "/send_movie_invitation",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ receiver_id: selectedFriendId, movie_id: selectedMovieId }),
+        success: (response) => {
+            alert(response.message);
+            $("#movie-invite-modal").hide();
+            currentSessionId = response.session_id;
+            currentRoomId = response.room_id;
+            isSender = true;
+
+            // Immediately join the movie session for the sender
+            joinMovieSession(currentSessionId, currentRoomId, response.movie_path);
+        },                error: (xhr, status, error) => {
+                    console.error("Error sending movie invitation:", error);
+                    alert("Failed to send movie invitation. Please try again.");
+                },
+            });
+        });
+
+
+// Close Movie Invite Modal
+$(".close").click(() => {
+  $("#movie-invite-modal").hide()
+})
+
+
+
+socket.on("message", (data) => {
+    console.log("Received message:", data); // Check if the message is received
+
+    if (data && data.room === currentRoom) {
+        console.log("Appending message to chat:", data); // Check if it's the correct room
+        $("#chat-messages").append(`<p><strong>${data.username}:</strong> ${data.message}</p>`);
+        $("#chat-messages").scrollTop($("#chat-messages")[0].scrollHeight);
+    } else {
+        console.log("Message from a different room or invalid data:", data);
+    }
+});
+
+
+// Load Notifications
+function loadNotifications() {
+  $.get("/notifications", (notifications) => {
+    let html = ""
+    notifications.forEach((notif) => {
+      if (notif.notification_type === "movie_invitation") {
+        html += `<div>
+                    ${notif.message}
+                    <button class="accept-movie-invitation" data-session-id="${notif.session_id}">Accept</button>
+                </div>`
+      } else {
+        html += `<div>${notif.message}</div>`
+      }
+    })
+    $("#notifications-list").html(html)
+  })
+}
+
+// Accept Movie Invitation
+$(document).on("click", ".accept-movie-invitation", function () {
+    const sessionId = $(this).data("session-id");
+    $.ajax({
+        url: "/accept_movie_invitation",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ session_id: sessionId }),
+        success: (response) => {
+            alert(response.message);
+            loadNotifications();
+
+            // Join the movie session with the received data
+            joinMovieSession(response.session_id, response.room_id, response.movie_path);
+        },
+        error: (xhr, status, error) => {
+            console.error("Error accepting movie invitation:", error);
+            alert("Failed to accept movie invitation. Please try again.");
+        },
+    });
+});
+
+function joinMovieSession(sessionId, roomId, moviePath) {  // No Change Here
+    currentSessionId = sessionId;
+    currentRoomId = roomId;
+    $(".video-container").show();
+    videoPlayer = document.getElementById("movie-player");
+
+    const encodedMoviePath = encodeURI(`/movies/${moviePath.replace(/\\/g, "/")}`); // Important!
+    videoPlayer.src = encodedMoviePath;
+    videoPlayer.load();
+
+            videoPlayer.onplay = () => {
+                socket.emit("sync_playback", { room: roomId, time: videoPlayer.currentTime, playing: true, session_id: sessionId });
+            };
+            videoPlayer.onpause = () => {
+                socket.emit("sync_playback", { room: roomId, time: videoPlayer.currentTime, playing: false, session_id: sessionId });
+            };
+            videoPlayer.onseeked = () => {
+                socket.emit("sync_playback", { room: roomId, time: videoPlayer.currentTime, playing: !videoPlayer.paused, session_id: sessionId });
+            };
+
+            socket.on("playback_update", (data) => {
+                if (data.session_id !== currentSessionId) return;
+
+                if (Math.abs(videoPlayer.currentTime - data.time) > 1) {
+                    videoPlayer.currentTime = data.time;
+                }
+                if (data.playing && videoPlayer.paused) {
+                    videoPlayer.play();
+                } else if (!data.playing && !videoPlayer.paused) {
+                    videoPlayer.pause();
+                }
+            });
+
+            socket.emit('join_room', { room_id: roomId, user_id: userId });
+
+            if (isSender) {
+                videoPlayer.play();
+            } else {
+                setTimeout(() => {
+                    videoPlayer.play();
+                }, 500);
+            }
+        }
+
+
+// Initial Load
+loadFriendRequests()
+loadFriends()
+loadNotifications()
+
+// Receive Movie Invitation
+socket.on("movie_invitation", (data) => {
+  loadNotifications()
+})
+
+    </script>
+</body>
+</html>

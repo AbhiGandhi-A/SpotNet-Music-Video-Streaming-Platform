@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watch Together</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div id="watch-together-container">
+        <h1>Watch Together</h1>
+
+        <!-- Video Player -->
+        <div id="video-container">
+            <video id="movie-player" controls>
+                <source id="movie-source" src="" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+
+        <!-- Chat Area -->
+        <div id="chat-container">
+            <div id="chat-box">
+                <div id="chat-messages"></div>
+                <input type="text" id="chat-input" placeholder="Type a message..." />
+                <button id="send-chat">Send</button>
+            </div>
+        </div>
+
+        <div id="invite-notifications"></div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+    <script>
+        // Socket.IO connection
+        const socket = io.connect();
+
+        let movieId = null;
+        let friendId = null;
+
+        // Get movie ID from the server
+        socket.on('start_movie', (data) => {
+            movieId = data.movie_id;
+            startMovie(movieId);
+        });
+
+        // Chat message handling
+        document.getElementById('send-chat').addEventListener('click', () => {
+            const message = document.getElementById('chat-input').value;
+            if (message.trim()) {
+                socket.emit('send_chat_message', { movieId: movieId, friendId: friendId, message: message });
+                document.getElementById('chat-input').value = '';
+            }
+        });
+
+        // Display chat messages
+        socket.on('receive_chat_message', (data) => {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = data.message;
+            chatMessages.appendChild(messageDiv);
+        });
+
+        function startMovie(movieId) {
+            console.log("Starting movie with ID: " + movieId);
+            // Load the movie source
+            document.getElementById('movie-source').src = '/movies/' + movieId + '.mp4';
+            document.getElementById('movie-player').load();
+            document.getElementById('movie-player').play();
+        }
+
+        // Invite notifications handling
+        socket.on('receive_movie_invite', (data) => {
+            const notification = document.createElement('div');
+            notification.textContent = `You have been invited to watch "${data.movieTitle}". Accept?`;
+            const acceptBtn = document.createElement('button');
+            acceptBtn.textContent = 'Accept';
+            acceptBtn.onclick = () => {
+                socket.emit('accept_movie_invite', { inviteId: data.inviteId });
+            };
+            notification.appendChild(acceptBtn);
+            document.getElementById('invite-notifications').appendChild(notification);
+        });
+    </script>
+</body>
+</html>

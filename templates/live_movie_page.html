@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Movie | SpotNet</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/live_movie.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script> <!-- Include hls.js -->
+</head>
+<body>
+
+
+    <div class="movie-container">
+        <h2>Now Streaming: Live Movie</h2>
+        <video id="movie-player" controls autoplay width="100%">
+    <source id="hls-source" type="application/x-mpegURL" src="{{ m3u8_url }}">
+    Your browser does not support the video tag.
+</video>
+</div>
+    <div class="sticky-navbar">
+    <a href="{{ url_for('dashboard', username=session.get('user')) }}">Home</a>
+    <a href="{{ url_for('movies_page') }}">Movies</a>
+    <a href="{{ url_for('songs_page') }}">Songs</a>
+    <a href="{{ url_for('live_movie_page') }}" class="live-stream-button" id="liveMovieButton">Watch Live Movie</a>
+    <a href="{{ url_for('playlists_page', username=session.get('user')) }}">Playlists</a> <!-- Corrected here -->
+<a href="{{ url_for('chat', username=session.get('user')) }}" class="chat-btn">Watch Together</a>
+
+</div>
+
+        <script>
+    // Check if HLS.js is supported
+if (Hls.isSupported()) {
+    var video = document.getElementById('movie-player');
+    var hls = new Hls();
+
+    // Attach the video stream to the player
+    hls.loadSource("{{ m3u8_url }}");  // Ensure this URL is correct
+    hls.attachMedia(video);
+
+    hls.on(Hls.Events.MANIFEST_PARSED, function() {
+        video.play();
+    });
+
+    hls.on(Hls.Events.ERROR, function(event, data) {
+        console.error("HLS Error: ", data);
+        if (data.fatal) {
+            switch (data.fatal) {
+                case Hls.ErrorTypes.NETWORK_ERROR:
+                    console.error('Network error, please check your internet connection.');
+                    break;
+                case Hls.ErrorTypes.MEDIA_ERROR:
+                    console.error('Media error occurred while playing the video.');
+                    break;
+                case Hls.ErrorTypes.OTHER_ERROR:
+                    console.error('An unknown error occurred.');
+                    break;
+                default:
+                    console.error('Error occurred: ', data);
+                    break;
+            }
+        }
+    });
+}
+else {
+    // Fallback if browser supports native HLS playback
+    var video = document.getElementById('movie-player');
+    video.src = "{{ m3u8_url }}";  // Ensure this URL is correct
+    video.addEventListener('loadedmetadata', function() {
+        video.play();
+    });
+}
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+</body>
+</html>

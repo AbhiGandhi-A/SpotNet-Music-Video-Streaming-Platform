@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscription Page | SpotNet</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/subscription_page.css') }}">
+</head>
+<body>
+    <h1>Subscription Page - {{ username }}</h1>
+
+    <!-- Current Subscription -->
+    {% if current_subscription %}
+    <h2>Current Subscription</h2>
+    <p>Name: {{ current_subscription.name }}</p>
+    <p>Price: ${{ current_subscription.price }}</p>
+    <p>Start Date: {{ current_subscription.start_date }}</p>
+    <p>End Date: {{ current_subscription.end_date }}</p>
+    {% else %}
+    <p>You do not have an active subscription.</p>
+    {% endif %}
+
+    <!-- Past Subscriptions -->
+    <h2>Past Subscriptions</h2>
+    {% if past_subscriptions %}
+    <ul>
+        {% for subscription in past_subscriptions %}
+        <li>
+            <p>Name: {{ subscription.name }}</p>
+            <p>Price: ${{ subscription.price }}</p>
+            <p>Start Date: {{ subscription.start_date }}</p>
+            <p>End Date: {{ subscription.end_date }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>You have no past subscriptions.</p>
+    {% endif %}
+
+    <!-- Subscription Options (to buy) -->
+    <h2>Available Subscriptions</h2>
+    {% for subscription in subscriptions %}
+    <div class="subscription" data-modal="modal-{{ subscription.id }}">
+        <h3>{{ subscription.name }}</h3>
+        <p>{{ subscription.description }}</p>
+        <p><strong>Price:</strong> ${{ subscription.price }}</p>
+        <p><strong>Duration:</strong> {{ subscription.duration_days }} days</p>
+    </div>
+    {% endfor %}
+    <button onclick="goBackToDashboard()" class="btn btn-primary">Back to Dashboard</button>
+
+    {% for subscription in subscriptions %}
+    <div id="modal-{{ subscription.id }}" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>{{ subscription.name }}</h3>
+            <p>{{ subscription.description }}</p>
+            <p><strong>Price:</strong> ${{ subscription.price }}</p>
+            <p><strong>Duration:</strong> {{ subscription.duration_days }} days</p>
+            <form method="POST" action="{{ url_for('purchase_subscription') }}">
+                <input type="hidden" name="subscription_id" value="{{ subscription.id }}">
+                <button type="submit">Purchase</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+
+    <button id="topButton" onclick="scrollToTop()">Go to Top</button>
+
+    <script>
+        function goBackToDashboard() {
+            window.location.href = "{{ url_for('dashboard', username=session.get('user')) }}";
+        }
+
+        // JavaScript to handle modal functionality
+        document.querySelectorAll('.subscription').forEach(sub => {
+            sub.addEventListener('click', (e) => {
+                if (!e.target.closest('button')) {
+                    const modalId = sub.getAttribute('data-modal');
+                    document.getElementById(modalId).style.display = 'block';
+                }
+            });
+        });
+
+        document.querySelectorAll('.close').forEach(close => {
+            close.addEventListener('click', () => {
+                close.closest('.modal').style.display = 'none';
+            });
+        });
+
+        window.onclick = (event) => {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        };
+
+        // Show "Go to Top" button when scrolling
+        window.onscroll = function () {
+            let topButton = document.getElementById("topButton");
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                topButton.style.display = "block";
+            } else {
+                topButton.style.display = "none";
+            }
+        };
+
+        // Scroll to top smoothly
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+    </script>
+</body>
+</html>

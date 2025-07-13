@@ -15,9 +15,11 @@
         <label for="category">Category:</label>
         <select name="category" id="category">
             <option value="normal" {% if request.args.get('category') == 'normal' %}selected{% endif %}>All</option>
-            <option value="action" {% if request.args.get('category') == 'action' %}selected{% endif %}>Action</option>
-            <option value="comedy" {% if request.args.get('category') == 'comedy' %}selected{% endif %}>Comedy</option>
-            <option value="drama" {% if request.args.get('category') == 'drama' %}selected{% endif %}>Drama</option>
+            {% for category in categories %}
+                <option value="{{ category['Category_song'] }}" {% if request.args.get('category') == category['Category_song'] %}selected{% endif %}>
+                    {{ category['Category_song'] }}
+                </option>
+            {% endfor %}
         </select>
 
         <label for="language">Language:</label>
@@ -37,12 +39,122 @@
                 <p><strong>Category:</strong> {{ song['category'] }}</p>
                 <p><strong>Language:</strong> {{ song['language'] }}</p>
                 <p><strong>Release Date:</strong> {{ song['release_date'] }}</p>
+
+                <!-- Display the thumbnail -->
+                {% if song['thumbnail'] %}
+                    <img src="data:image/jpeg;base64,{{ song['thumbnail'] }}" alt="Song Thumbnail" width="100">
+                {% else %}
+                    <p>No thumbnail available</p>
+                {% endif %}
+
                 <a href="{{ url_for('view_song', song_id=song['id']) }}">View Song</a>
+                <!-- Add to Playlist Button -->
+                <button onclick="openPlaylistModal({{ song['id'] }})">Add to Playlist</button>
             </div>
         {% else %}
             <p>No songs found for the selected filters.</p>
         {% endfor %}
     </div>
+
+    <div class="sticky-navbar">
+    <a href="{{ url_for('dashboard', username=session.get('user')) }}">Home</a>
+    <a href="{{ url_for('movies_page') }}">Movies</a>
+    <a href="{{ url_for('songs_page') }}">Songs</a>
+    <a href="{{ url_for('live_movie_page') }}" class="live-stream-button" id="liveMovieButton">Watch Live Movie</a>
+    <a href="{{ url_for('playlists_page', username=session.get('user')) }}">Playlists</a> <!-- Corrected here -->
+<a href="{{ url_for('chat', username=session.get('user')) }}" class="chat-btn">Watch Together</a>
+
+</div>
+
+    <!-- Playlist Modal -->
+    <div id="playlistModal" style="display: none;">
+        <h2>Select a Playlist or Create New</h2>
+        <div id="playlistList"></div>
+        <input type="text" id="newPlaylistName" placeholder="New Playlist Name">
+        <button onclick="createNewPlaylist()">Create Playlist</button>
+        <button onclick="closeModal()">Close</button>
+    </div>
+
+    <script>
+        let selectedSongId = null;
+
+        // Open Playlist Modal
+        function openPlaylistModal(song_id) {
+            selectedSongId = song_id;
+            fetchPlaylists();
+            document.getElementById('playlistModal').style.display = 'block';
+        }
+
+        // Close Playlist Modal
+        function closeModal() {
+            document.getElementById('playlistModal').style.display = 'none';
+        }
+
+        // Fetch Playlists for the current user
+        function fetchPlaylists() {
+            const username = "{{ session['user'] }}"; // Replace with the actual username from session
+            fetch(`/get_playlists?username=${username}`)
+                .then(response => response.json())
+                .then(data => {
+                    const playlistList = document.getElementById('playlistList');
+                    playlistList.innerHTML = '';
+                    if (data.length > 0) {
+                        data.forEach(playlist => {
+                            const button = document.createElement('button');
+                            button.textContent = playlist.name;
+                            button.onclick = () => addToPlaylist(playlist.id);
+                            playlistList.appendChild(button);
+                        });
+                    } else {
+                        playlistList.innerHTML = '<p>No playlists found. You can create a new one.</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching playlists:', error);
+                });
+        }
+
+        // Add Song to Selected Playlist
+        function addToPlaylist(playlist_id) {
+            const username = "{{ session['user'] }}"; // Use the username from session
+            fetch('/song/' + selectedSongId + '/add_to_playlist', {
+                method: 'POST',
+                body: JSON.stringify({ username: username, playlist_id: playlist_id }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message || 'Failed to add song to playlist.');
+                closeModal();
+            })
+            .catch(error => {
+                alert('Error adding song to playlist.');
+            });
+        }
+
+        // Create New Playlist
+        function createNewPlaylist() {
+            const username = "{{ session['user'] }}"; // Use the username from session
+            const playlistName = document.getElementById('newPlaylistName').value;
+            if (playlistName) {
+                fetch('/create_playlist', {
+                    method: 'POST',
+                    body: JSON.stringify({ username: username, playlist_name: playlistName }),
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message || 'Failed to create playlist.');
+                    closeModal();
+                })
+                .catch(error => {
+                    alert('Error creating playlist.');
+                });
+            } else {
+                alert('Please enter a playlist name.');
+            }
+        }
+    </script>
 
 </body>
 </html>

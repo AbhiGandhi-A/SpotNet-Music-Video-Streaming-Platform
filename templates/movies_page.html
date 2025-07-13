@@ -4,48 +4,192 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movies Page</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/song_page.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/movie_page.css') }}">
 </head>
 <body>
-
     <h1>Movies</h1>
 
     <!-- Filter Form -->
-    <form method="get" action="{{ url_for('movies_page') }}">
-        <label for="category">Category:</label>
-        <select name="category" id="category">
-            <option value="normal" {% if request.args.get('category') == 'normal' %}selected{% endif %}>All</option>
-            <option value="action" {% if request.args.get('category') == 'action' %}selected{% endif %}>Action</option>
-            <option value="comedy" {% if request.args.get('category') == 'comedy' %}selected{% endif %}>Comedy</option>
-            <option value="drama" {% if request.args.get('category') == 'drama' %}selected{% endif %}>Drama</option>
-        </select>
-
-        <a href="{{ url_for('view_movie', movie_id=movie['id']) }}">View Movie</a>
-
-        <label for="language">Language:</label>
-        <input type="text" name="language" id="language" value="{{ request.args.get('language', '') }}" placeholder="Language">
-
-        <label for="release_date">Release Date:</label>
-        <input type="date" name="release_date" id="release_date" value="{{ request.args.get('release_date', '') }}">
-
-        <button type="submit">Filter</button>
-    </form>
-
-    <!-- Movies List -->
-    <div class="movies-list">
-        {% for movie in movies %}
-            <div class="movie-item">
-                <img src="data:image/png;base64,{{ movie['thumbnail'] }}" alt="Thumbnail" class="thumbnail">
-                <h2>{{ movie['title'] }}</h2>
-                <p><strong>Category:</strong> {{ movie['category'] }}</p>
-                <p><strong>Language:</strong> {{ movie['language'] }}</p>
-                <p><strong>Release Date:</strong> {{ movie['release_date'] }}</p>
-                <a href="{{ url_for('view_movie', movie_id=movie['id']) }}">View Movie</a>
+    <div class="filter-form">
+        <form method="get" action="{{ url_for('movies_page') }}">
+            <div>
+                <label for="region">Category:</label>
+                <select name="region" id="region">
+                    <option value="all" {% if request.args.get('region') == 'all' %}selected{% endif %}>All</option>
+                    {% for region in regions %}
+                        <option value="{{ region['id'] }}" {% if request.args.get('region') == region['id'] %}selected{% endif %}>
+                            {{ region['name'] }}
+                        </option>
+                    {% endfor %}
+                </select>
             </div>
-        {% else %}
-            <p>No movies found for the selected filters.</p>
-        {% endfor %}
+            <div>
+                <label for="language">Language:</label>
+                <select name="language" id="language">
+                    <option value="" {% if not request.args.get('language') %}selected{% endif %}>All</option>
+                    {% for lang in languages %}
+                        <option value="{{ lang['language'] }}" {% if request.args.get('language') == lang['language'] %}selected{% endif %}>
+                            {{ lang['language'] }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="release_date">Release Date:</label>
+                <input type="date" name="release_date" id="release_date" value="{{ request.args.get('release_date', '') }}">
+            </div>
+            <button type="submit">Filter</button>
+        </form>
     </div>
 
+    <!-- Movies List -->
+    <div class="movies-section">
+        <div class="movies-list">
+            {% for movie in movies %}
+                <div class="movie-item">
+                    <img src="data:image/png;base64,{{ movie['thumbnail'] }}" alt="Thumbnail" class="thumbnail">
+                    <h2>{{ movie['title'] }}</h2>
+                    <p><strong>Region:</strong> {% if movie['region_id'] %}
+                        {% for region in regions %}
+                            {% if region['id'] == movie['region_id'] %}
+                                {{ region['name'] }}
+                            {% endif %}
+                        {% endfor %}
+                    {% else %} No region specified {% endif %}</p>
+                    <p><strong>Language:</strong> {{ movie['language'] }}</p>
+                    <p><strong>Release Date:</strong> {{ movie['release_date'] }}</p>
+                    <a href="{{ url_for('view_movie', movie_id=movie['id']) }}">View Movie</a>
+                    <!-- Add to Playlist Button -->
+                    <button onclick="openPlaylistModal({{ movie['id'] }})">Add to Playlist</button>
+                </div>
+            {% else %}
+                <p>No movies found for the selected filters.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="sticky-navbar">
+    <a href="{{ url_for('dashboard', username=session.get('user')) }}">Home</a>
+    <a href="{{ url_for('movies_page') }}">Movies</a>
+    <a href="{{ url_for('songs_page') }}">Songs</a>
+    <a href="{{ url_for('live_movie_page') }}" class="live-stream-button" id="liveMovieButton">Watch Live Movie</a>
+    <a href="{{ url_for('playlists_page', username=session.get('user')) }}">Playlists</a> <!-- Corrected here -->
+  <a href="{{ url_for('chat', username=session.get('user')) }}" class="chat-btn">Watch Together</a>
+
+</div>
+
+    <!-- Playlist Modal -->
+    <div id="playlistModal" style="display: none;">
+        <h2>Select a Playlist or Create New</h2>
+        <div id="playlistList"></div>
+        <input type="text" id="newPlaylistName" placeholder="New Playlist Name">
+        <button onclick="createNewPlaylist()">Create Playlist</button>
+        <button onclick="closeModal()">Close</button>
+    </div>
+
+    <script>
+
+        let selectedMovieId = null;
+
+        // Open Playlist Modal
+        function openPlaylistModal(movie_id) {
+            selectedMovieId = movie_id;
+            fetchPlaylists();
+            document.getElementById('playlistModal').style.display = 'block';
+        }
+
+        // Close Playlist Modal
+        function closeModal() {
+            document.getElementById('playlistModal').style.display = 'none';
+        }
+
+        // Fetch Playlists for the current user
+        // Fetch Playlists for the current user
+function fetchPlaylists() {
+    const username = "{{ session['user'] }}"; // Replace with the actual username from session
+    fetch(`/get_playlists?username=${username}`)
+        .then(response => response.json())
+        .then(data => {
+            const playlistList = document.getElementById('playlistList');
+            playlistList.innerHTML = '';
+            if (data.length > 0) {
+                data.forEach(playlist => {
+                    const button = document.createElement('button');
+                    button.textContent = playlist.name;
+                    button.onclick = () => addToPlaylist(playlist.id);
+                    playlistList.appendChild(button);
+                });
+            } else {
+                playlistList.innerHTML = '<p>No playlists found. You can create a new one.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching playlists:', error);
+        });
+}
+
+// Add Movie to Selected Playlist
+function addToPlaylist(playlist_id) {
+    const username = "{{ session['user'] }}"; // Use the username from session
+    fetch('/movie/' + selectedMovieId + '/add_to_playlist', {
+        method: 'POST',
+        body: JSON.stringify({ username: username, playlist_id: playlist_id }),
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message || 'Failed to add movie to playlist.');
+        closeModal();
+    })
+    .catch(error => {
+        alert('Error adding movie to playlist.');
+    });
+}
+
+// Create New Playlist
+function createNewPlaylist() {
+    const username = "{{ session['user'] }}"; // Use the username from session
+    const playlistName = document.getElementById('newPlaylistName').value;
+    if (playlistName) {
+        fetch('/create_playlist', {
+            method: 'POST',
+            body: JSON.stringify({ username: username, playlist_name: playlistName }),
+            headers: { 'Content-Type': 'application/json' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message || 'Failed to create playlist.');
+            closeModal();
+        })
+        .catch(error => {
+            alert('Error creating playlist.');
+        });
+    } else {
+        alert('Please enter a playlist name.');
+    }
+}
+
+
+        // Add Movie to Selected Playlist
+        function addToPlaylist(playlist_id) {
+            const username = "username_placeholder"; // Replace with the actual username from session
+            fetch('/movie/' + selectedMovieId + '/add_to_playlist', {
+                method: 'POST',
+                body: JSON.stringify({ username: username, playlist_id: playlist_id }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message || 'Failed to add movie to playlist.');
+                closeModal();
+            })
+            .catch(error => {
+                alert('Error adding movie to playlist.');
+            });
+        }
+
+
+    </script>
 </body>
 </html>

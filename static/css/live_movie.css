@@ -1,0 +1,238 @@
+/* Enhanced Global styles */
+:root {
+  --primary-color: #bb86fc;
+  --secondary-color: #03dac6;
+  --accent-color: #cf6679;
+  --background-color: #121212;
+  --surface-color: #1e1e1e;
+  --text-color: #ffffff;
+  --card-background: #2e2e2e;
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --hover-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Roboto', Arial, sans-serif;
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.live-movie-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Enhanced Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--surface-color);
+  color: white;
+  padding: 15px 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar a {
+  color: var(--text-color);
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  font-weight: bold;
+}
+
+.navbar a:hover {
+  background-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--hover-shadow);
+}
+
+/* Movie Container */
+.movie-container {
+  flex: 1;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: var(--surface-color);
+  border-radius: 10px;
+  box-shadow: var(--card-shadow);
+}
+
+.movie-container h2 {
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
+  font-size: 2.2rem;
+  text-align: center;
+  position: relative;
+}
+
+.movie-container h2::after {
+  content: '';
+  display: block;
+  width: 50px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  margin: 10px auto 0;
+}
+
+/* Video Player */
+/* Video Player */
+#movie-player {
+  width: 100%;
+  max-height: 70vh;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.3s ease;
+}
+
+#movie-player:hover {
+  transform: scale(1.02);
+}
+
+/* Ensure no dark gradient effect on the video player */
+#movie-player::-webkit-media-controls {
+  background-color: transparent;  /* Removed any background overlay */
+}
+
+#movie-player::-webkit-media-controls-panel {
+  background-color: transparent;  /* Ensure panel background is also transparent */
+}
+
+#movie-player::-webkit-media-controls-play-button {
+  background-color: var(--primary-color);  /* Keep the play button styling */
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+
+#movie-player::-webkit-media-controls-play-button:hover {
+  transform: scale(1.1);  /* Slight animation on hover */
+}
+
+#movie-player::-webkit-media-controls-timeline {
+  background-color: rgba(255, 255, 255, 0.2);  /* Lightened color for timeline */
+  border-radius: 10px;
+  height: 5px;
+}
+
+#movie-player::-webkit-media-controls-current-time-display,
+#movie-player::-webkit-media-controls-time-remaining-display {
+  color: var(--text-color);
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);  /* Keep time display clear */
+}
+
+
+/* Enhanced Sticky Bottom Navbar */
+.sticky-navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface-color);
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  color: white;
+  font-size: 16px;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sticky-navbar a {
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sticky-navbar a:hover {
+  background-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--hover-shadow);
+}
+
+.live-stream-button {
+  background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+  color: var(--text-color);
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.live-stream-button:hover {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  transform: translateY(-2px);
+  box-shadow: var(--hover-shadow);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .navbar, .sticky-navbar {
+    flex-wrap: wrap;
+  }
+
+  .navbar a, .sticky-navbar a {
+    margin: 0.25rem;
+    flex-grow: 1;
+    justify-content: center;
+  }
+
+  .movie-container {
+    padding: 1rem;
+    margin: 1rem;
+  }
+
+  .movie-container h2 {
+    font-size: 1.8rem;
+  }
+
+  #movie-player {
+    max-height: 50vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .movie-container h2 {
+    font-size: 1.5rem;
+  }
+
+  .navbar a, .sticky-navbar a {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+/* Animations */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.live-stream-button:hover {
+  animation: pulse 1s infinite;
+}
+

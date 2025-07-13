@@ -3,27 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Song</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/songs.css') }}">
+    <title>Add Song | SpotNet</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>Add New Song</h1>
-        <form method="POST" action="{{ url_for('add_song') }}" enctype="multipart/form-data">
-            <!-- Movie Selection -->
+    <div class="main-content">
+        <h1><i class="fas fa-music"></i> Add New Song</h1>
+        <form id="add-song-form" method="POST" action="{{ url_for('add_song') }}" enctype="multipart/form-data">
+            <label for="title">Song Title:</label>
+            <input type="text" id="title" name="title" required>
+
+            <label for="song_name">Song Name:</label>
+            <input type="text" id="song_name" name="song_name" placeholder="e.g., My Heart Will Go On" required>
+
             <label for="movie_id">Select Movie:</label>
             <select id="movie_id" name="movie_id" required>
                 <option value="">-- Choose a Movie --</option>
                 {% for movie in movies %}
                     <option value="{{ movie.id }}">{{ movie.title }}</option>
                 {% endfor %}
-            </select><br><br>
+            </select>
 
-            <!-- Song File Selection -->
-            <label for="song_file">Song File:</label>
-            <input type="file" id="song_file" name="song_file" accept=".mp3,.wav" required><br><br>
+            <label for="category">Select Category:</label>
+            <select id="category" name="category" required>
+                <option value="">-- Choose a Category --</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.Category_song }}</option> <!-- Corrected to Category_song -->
+                {% endfor %}
+            </select>
 
-            <!-- Language Selection -->
+            <label for="new_category">Add New Category:</label>
+            <input type="text" id="new_category" name="new_category" placeholder="New category name" onkeyup="toggleAddCategoryButton()">
+
+            <label for="adult">Category Type:</label>
+            <select id="adult" name="adult">
+                <option value="0">Normal</option>
+                <option value="1">Adult</option>
+            </select>
+
+            <button type="button" id="add-category-btn" onclick="addCategory()" disabled>Add Category</button>
+
+            <label for="song_file_path">Song File Path:</label>
+            <input type="text" id="song_file_path" name="song_file_path" placeholder="e.g., /path/to/song.mp3" required>
+
             <label for="language">Language:</label>
             <select id="language" name="language" required>
                 <option value="">-- Select Language --</option>
@@ -31,16 +53,74 @@
                 <option value="Gujarati">Gujarati</option>
                 <option value="English">English</option>
                 <option value="Other">Other</option>
-            </select><br><br>
+            </select>
 
-            <!-- Release Date Selection -->
             <label for="release_date">Release Date:</label>
-            <input type="date" id="release_date" name="release_date" required><br><br>
+            <input type="date" id="release_date" name="release_date" required>
 
-            <p>Don't see your movie? <a href="{{ url_for('add_movie') }}">Add a new movie</a></p>
+            <p>Don't see your movie? <a href="#" onclick="loadPage('add_movie')">Add a new movie</a></p>
 
-            <input type="submit" value="Save Song">
+            <button type="submit">Save Song</button>
         </form>
     </div>
+
+    <script>
+        const form = document.getElementById('add-song-form');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+
+            fetch('/add_song', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Song added successfully!');
+                    loadPage('dashboard');
+                } else {
+                    alert('Error adding song: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while adding the song.');
+            });
+        });
+
+        function toggleAddCategoryButton() {
+            const newCategoryInput = document.getElementById('new_category').value;
+            document.getElementById('add-category-btn').disabled = !newCategoryInput;
+        }
+
+        function addCategory() {
+    const newCategory = document.getElementById('new_category').value;
+    const adult = document.getElementById('adult').value;
+
+    fetch('/add_category', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: newCategory, adult: parseInt(adult) })
+    })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Category added successfully!');
+                    location.reload();
+                } else {
+                    alert('Error adding category: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while adding the category.');
+            });
+        }
+    </script>
 </body>
 </html>

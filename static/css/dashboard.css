@@ -1,28 +1,726 @@
-/* Global styles */
+/* Enhanced Global styles */
+:root {
+  --primary-color: #bb86fc;
+  --secondary-color: #03dac6;
+  --accent-color: #cf6679;
+  --background-color: #121212;
+  --surface-color: #1e1e1e;
+  --text-color: #ffffff;
+  --card-background: #2e2e2e;
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --hover-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Roboto', Arial, sans-serif;
 }
 
 body {
-    background-color: #f0f0f0;
-    color: #333;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Enhanced Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--surface-color);
+  color: white;
+  padding: 15px 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.navbar .logo {
+  font-size: 24px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbar .profile {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.navbar .profile img {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+  border: 2px solid white;
+}
+
+.navbar .profile h2 {
+  color: white;
+  font-size: 16px;
+  margin: 0;
+  padding: 0;
+}
+
+/* Profile Options Dropdown */
+.profile-options {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: var(--surface-color);
+  color: white;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  min-width: 200px;
+  z-index: 10;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Profile Options Links */
+.profile-options a {
+  display: block;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: white;
+  font-size: 14px;
+  border-bottom: 1px solid #444;
+  transition: background-color 0.3s ease;
+}
+
+.profile-options a:hover {
+  background-color: #555;
+}
+
+.profile-options a:last-child {
+  border-bottom: none;
+}
+
+/* Subscription Timer */
+.subscription-timer {
+  color: white;
+  font-size: 14px;
+  margin-left: 20px;
+}
+
+/* Navbar Links */
+.navbar a {
+  color: white;
+  text-decoration: none;
+  padding: 10px 20px;
+  font-size: 14px;
+}
+
+.navbar a:hover {
+  background-color: #444;
+  border-radius: 5px;
+}
+
+/* Show the profile options with animation */
+.profile-options.show {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+/* Enhanced Search Bar */
+/* Enhanced Search Bar */
+.search-bar {
+  padding: 20px;
+  background-color: var(--surface-color);
+  text-align: center;
+  box-shadow: var(--card-shadow);
+  position: relative;
+  border-radius: 25px;
+}
+
+.search-bar input {
+  padding: 12px 20px 12px 50px;
+  width: 60%;
+  font-size: 16px;
+  border-radius: 25px;
+  border: 1px solid var(--primary-color);
+  background-color: var(--card-background);
+  color: var(--text-color);
+  transition: box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+.search-bar input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--accent-color);
+  background-color: var(--card-hover-background);
+}
+
+.search-bar .search-icon {
+  position: absolute;
+  left: 10%;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--primary-color);
+  font-size: 20px;
+  pointer-events: none; /* Prevent interaction */
+}
+
+.suggestions {
+  display: none; /* Hide suggestions by default */
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--card-background);
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  width: 60%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.suggestion-item {
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.suggestion-item:hover {
+  background-color: var(--card-hover-background);
+}
+
+.suggestion-item img {
+  height: 50px;
+  width: 50px;
+  object-fit: cover;
+  border-radius: 50%; /* Makes the image circular */
+  margin-right: 15px;
+  border: 2px solid var(--primary-color);
+}
+
+.suggestion-item span {
+  font-size: 16px;
+  color: var(--text-color);
+  white-space: nowrap; /* Prevent text wrapping */
+  overflow: hidden; /* Avoid overflow if the title is too long */
+  text-overflow: ellipsis; /* Show ellipsis for truncated text */
+}
+
+/* Align search icon better for consistency */
+.search-bar .search-icon {
+  left: 20px;
+}
+
+
+/* Responsive Adjustments */
+@media screen and (max-width: 768px) {
+  .search-bar input {
+    width: 90%;
+    font-size: 16px;
+  }
+
+  .search-bar .search-icon {
+    left: calc(5% + 15px);
+  }
+
+  .suggestions {
+    width: 90%;
+  }
+}
+
+/* Enhanced Carousel Styles */
+.carousel-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    margin: 30px 0;
+    border-radius: 10px;
+    box-shadow: var(--card-shadow);
+    background: linear-gradient(45deg, var(--surface-color), var(--card-background));
+}
+
+.carousel {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.carousel img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    transition: transform 0.3s ease, filter 0.3s ease;
+    position: relative;
+}
+
+.carousel img:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+/* Smoke/Gradient Dark Effect */
+.carousel::before,
+.carousel::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 200px;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.carousel::before {
+    top: 0;
+    background: linear-gradient(to bottom,
+        rgba(0, 0, 0, 0.6) 0%,
+        rgba(0, 0, 0, 0.3) 50%,
+        rgba(0, 0, 0, 0) 100%
+    );
+}
+
+.carousel::after {
+    bottom: 0;
+    background: linear-gradient(to top,
+        rgba(0, 0, 0, 0.6) 0%,
+        rgba(0, 0, 0, 0.3) 50%,
+        rgba(0, 0, 0, 0) 100%
+    );
+}
+
+.carousel-container button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(var(--primary-color-rgb), 0.7);
+    color: var(--text-color);
+    border: none;
+    padding: 15px;
+    cursor: pointer;
+    font-size: 24px;
+    transition: all 0.3s ease;
+    z-index: 10;
+    opacity: 0;
+}
+
+.carousel-container:hover button {
+    opacity: 1;
+}
+
+.carousel-container button:hover {
+    background-color: rgba(var(--secondary-color-rgb), 0.9);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 0 15px rgba(var(--accent-color-rgb), 0.5);
+}
+
+.prev {
+    left: 10px;
+    border-radius: 0 50% 50% 0;
+}
+
+.next {
+    right: 10px;
+    border-radius: 50% 0 0 50%;
+}
+
+/* Carousel Indicators */
+.carousel-indicators {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 3;
+}
+
+.indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.indicator.active {
+    background-color: var(--primary-color);
+    transform: scale(1.2);
+}
+
+/* Carousel Animation */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.carousel img {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Responsive adjustments for carousel */
+@media (max-width: 768px) {
+    .carousel img {
+        height: 300px;
+    }
+
+    .carousel-container button {
+        padding: 10px;
+        font-size: 18px;
+    }
+
+    .carousel::before,
+    .carousel::after {
+        height: 70px;
+    }
+}
+
+@media (max-width: 480px) {
+    .carousel img {
+        height: 200px;
+    }
+
+    .carousel-container button {
+        padding: 8px;
+        font-size: 16px;
+    }
+
+    .carousel-indicators {
+        bottom: 10px;
+    }
+
+    .indicator {
+        width: 8px;
+        height: 8px;
+    }
+
+    .carousel::before,
+    .carousel::after {
+        height: 50px;
+    }
+}
+
+/* Smooth Scrolling Effect */
+.carousel {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Active Slide Highlight */
+.carousel img.active {
+    border: 3px solid var(--accent-color);
+    box-shadow: 0 0 20px rgba(var(--accent-color-rgb), 0.7);
+}
+/* Enhanced Movie Categories */
+.categories {
+  display: flex;
+  justify-content: center;
+  margin: 30px 0;
+  overflow-x: auto;
+  padding: 10px 0;
+}
+
+.categories button {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+  border: none;
+  color: white;
+  font-size: 16px;
+  margin: 0 10px;
+  cursor: pointer;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+}
+
+.categories button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--hover-shadow);
+}
+
+.categories button.active {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+/* Updated Playlist Button Style */
+.heart-icon {
+    font-size: 22px;
+    color: white; /* Default: unfilled heart */
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: transform 0.3s ease, color 0.3s ease;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.heart-icon.active {
+    color: #e74c3c; /* Filled heart when added to a playlist */
+}
+
+.heart-icon:hover {
+    transform: scale(1.1);
+}
+
+
+/* Enhanced Movie Columns Layout */
+.movie-columns {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  padding: 0 30px;
+  margin-top: 30px;
+}
+
+/* Enhanced Movie Column */
+.movie-column {
+  width: 100%;
+  background-color: var(--surface-color);
+  border-radius: 10px;
+  box-shadow: var(--card-shadow);
+  padding: 30px;
+  margin-bottom: 30px;
+}
+
+.movie-column h3 {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: var(--primary-color);
+  position: relative;
+}
+
+.movie-column h3::after {
+  content: '';
+  display: block;
+  width: 50px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  margin: 10px auto 0;
+}
+
+/* Enhanced Movie Cards */
+.movie-cards {
+  display: flex;
+  overflow-x: auto;
+  padding: 10px 0;
+  gap: 20px;
+}
+
+/* Enhanced Movie Card */
+.movie-card {
+  flex: 0 0 auto;
+  width: 200px;
+  background-color: var(--card-background);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: var(--card-shadow);
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.movie-card:hover {
+  transform: translateY(-10px);
+  box-shadow: var(--hover-shadow);
+}
+
+.movie-thumbnail {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.movie-card:hover .movie-thumbnail {
+  transform: scale(1.05);
+}
+
+.movie-card h3 {
+  font-size: 18px;
+  margin-top: 15px;
+  color: var(--text-color);
+}
+
+.movie-card p {
+  font-size: 14px;
+  color: #555;
+  margin: 10px 0;
+}
+
+.movie-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.movie-actions button {
+  padding: 8px 15px;
+  background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+  border: none;
+  color: white;
+  font-size: 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.movie-actions button:hover {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  transform: translateY(-2px);
+}
+
+
+/* Enhanced Sticky Bottom Navbar */
+.sticky-navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface-color);
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  color: white;
+  font-size: 16px;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sticky-navbar a {
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sticky-navbar a:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .movie-thumbnail {
+    height: 220px;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    text-align: center;
+    padding: 15px;
+  }
+
+  .navbar .profile {
+    margin-top: 15px;
+  }
+
+  .search-bar input {
+    width: 80%;
+  }
+
+  .search-bar .search-icon {
+    left: calc(10% + 15px);
+  }
+
+  .categories {
+    flex-wrap: wrap;
+  }
+
+  .categories button {
+    margin: 5px;
+  }
+
+  .movie-columns {
+    padding: 0 15px;
+  }
+
+  .movie-column {
+    min-width: 100%;
+  }
+
+  .movie-cards {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+
+  .sticky-navbar {
+    flex-wrap: wrap;
+  }
+
+  .sticky-navbar a {
+    flex: 1 0 50%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .movie-thumbnail {
+    height: 200px;
+  }
+
+  .movie-card h3 {
+    font-size: 16px;
+  }
+
+  .categories button {
     font-size: 14px;
-    line-height: 1.6;
+    padding: 8px 16px;
+  }
 }
 
-h2, h3 {
-    color: #333;
+/* Graphics and Animations */
+.movie-card::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+  z-index: -1;
+  filter: blur(20px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 15px;
 }
 
-a {
-    text-decoration: none;
-    color: inherit;
+.movie-card:hover::before {
+  opacity: 0.7;
 }
 
-/* Navbar */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.categories button:hover {
+  animation: pulse 1s infinite;
+}
+
+/* Navbar Styles */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -30,348 +728,237 @@ a {
     background-color: #333;
     color: white;
     padding: 10px 20px;
+    font-family: Arial, sans-serif;
 }
 
-.navbar .profile {
+/* Profile Section */
+.profile {
     display: flex;
     align-items: center;
     cursor: pointer;
 }
 
-.navbar .profile img {
-    border-radius: 50%;
+.profile img.profile-image {
     width: 40px;
     height: 40px;
+    border-radius: 50%;
     margin-right: 10px;
+    border: 2px solid white;
 }
 
+.profile h2 {
+    margin: 0;
+    font-size: 18px;
+    color: white;
+}
+
+/* Logout Link */
 .navbar a {
-    color: white;
-    padding: 10px;
     text-decoration: none;
-}
-
-/* Search Bar */
-.search-bar {
-    padding: 20px;
-    background-color: #fff;
-    text-align: center;
-}
-
-.search-bar input {
-    padding: 10px;
-    width: 50%;
     font-size: 16px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-}
-
-/* Movie Categories */
-.categories {
-    display: flex;
-    justify-content: center;
-    margin: 20px 0;
-    overflow-x: auto;
-    padding: 10px 0;
-}
-
-.categories button {
-    padding: 10px 20px;
-    background-color: #007BFF;
-    border: none;
     color: white;
-    font-size: 14px;
-    margin: 0 10px;
-    cursor: pointer;
+    background-color: #ff4d4d;
+    padding: 10px 15px;
     border-radius: 5px;
     transition: background-color 0.3s ease;
 }
 
-.categories button:hover {
-    background-color: #0056b3;
+.navbar a:hover {
+    background-color: #e60000;
 }
 
-/* Movie Columns Layout */
-.movie-columns {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-    padding: 0 20px;
-    margin-top: 20px;
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px;
+    }
+
+    .navbar a {
+        font-size: 14px;
+        padding: 8px 10px;
+        width: 100%; /* Make the button take full width on smaller screens */
+        text-align: center; /* Center the text inside the button */
+    }
 }
 
-/* Movie Column */
-.movie-column {
-    flex: 1;
-    background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-bottom: 20px;
+@media (max-width: 480px) {
+    .navbar a {
+        font-size: 12px;
+        padding: 6px 8px;
+    }
 }
 
-.movie-column h3 {
-    text-align: center;
-    font-size: 22px;
-    margin-bottom: 20px;
-    color: #007BFF;
+
+/* SVG Background */
+.dashboard {
+  position: relative;
 }
 
-/* Movie Cards */
-.movie-cards {
-    display: flex;
-    flex-wrap: wrap;
+/* Removed SVG background */
+.subscription-timer {
+    font-size: 14px;
+    color: red;
+    margin-left: 20px;
+    font-weight: bold;
+}
+
+/* General Styles for the Playlist Modal */
+.playlist-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
     justify-content: center;
-    gap: 20px;
-    padding: 10px;
+    align-items: center;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 9999; /* Ensures the modal is above all other content */
 }
 
-/* Movie Card */
-.movie-card {
-    background-color: #f9f9f9;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.playlist-modal-content {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    transform: translateY(-30px);
+    z-index: 10000; /* Ensures the content of the modal is also above other elements */
+}
+
+.playlist-modal-content h3 {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 20px;
     text-align: center;
-    transition: box-shadow 0.3s ease;
-    width: 230px;
+    color: #333;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+}
+
+/* Existing Playlists */
+#existing-playlists {
+    max-height: 250px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    padding: 0;
+}
+
+#existing-playlists button {
+    background-color: #3498db;
+    color: #fff;
+    padding: 10px;
+    margin: 5px 0;
+    width: 100%;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#existing-playlists button:hover {
+    background-color: #2980b9;
+}
+
+/* Playlist Dropdown */
+.playlist-dropdown {
+    margin-bottom: 20px;
+}
+
+#playlist-select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    background-color: #fff;
+    transition: border 0.3s ease;
+    appearance: none; /* Remove default dropdown styling */
     cursor: pointer;
 }
 
-.movie-card:hover {
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+#playlist-select:focus {
+    border-color: #3498db;
+    outline: none;
 }
 
-.movie-thumbnail {
+/* Input for New Playlist */
+#new-playlist-name {
     width: 100%;
-    height: 300px;
-    object-fit: cover;
-    border-radius: 8px;
-    transition: transform 0.3s ease;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    font-size: 16px;
+    transition: border 0.3s ease;
 }
 
-.movie-thumbnail:hover {
-    transform: scale(1.05);
+#new-playlist-name:focus {
+    border-color: #3498db;
+    outline: none;
 }
 
-.movie-card h3 {
-    font-size: 18px;
+/* Create New Playlist Button */
+.playlist-modal-content button {
+    background-color: #2ecc71;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    transition: background-color 0.3s ease;
     margin-top: 10px;
 }
 
-.movie-card p {
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 15px;
+.playlist-modal-content button:hover {
+    background-color: #27ae60;
 }
 
-.movie-actions {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
+/* Close Button */
+.playlist-modal-content button:last-child {
+    background-color: #e74c3c;
+    margin-top: 10px;
 }
 
-.movie-actions button {
-    padding: 10px 15px;
-    background-color: #28a745;
+.playlist-modal-content button:last-child:hover {
+    background-color: #c0392b;
+}
+
+/* Heart Icon Style */
+.heart-icon {
+    font-size: 22px;
+    color: #e74c3c;
     border: none;
-    color: white;
-    font-size: 14px;
-    border-radius: 5px;
+    background: none;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: transform 0.3s ease, color 0.3s ease;
 }
 
-.movie-actions button:hover {
-    background-color: #218838;
+.heart-icon:hover {
+    color: #c0392b;
+    transform: scale(1.1);
 }
 
-.movie-actions button:active {
-    background-color: #1e7e34;
+.heart-icon:focus {
+    outline: none;
 }
 
-/* Profile Options Popup */
-.profile-options {
-    position: absolute;
-    top: 50px;
-    right: 10px;
-    background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 10px;
-    border-radius: 8px;
-}
-
-.profile-options button {
-    padding: 10px 20px;
-    margin-bottom: 10px;
-    background-color: #007BFF;
-    border: none;
-    color: white;
-    font-size: 14px;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 100%;
-}
-
-.profile-options button:hover {
-    background-color: #0056b3;
-}
-
-/* Sticky Bottom Navbar */
-.sticky-navbar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background-color: #333;
+/* Smooth opening animation for the modal */
+.playlist-modal.show {
     display: flex;
-    justify-content: space-around;
-    padding: 10px 0;
-    color: white;
-    font-size: 14px;
+    opacity: 1;
+    visibility: visible;
 }
 
-.sticky-navbar a {
-    color: white;
-    padding: 10px;
-    text-decoration: none;
+.playlist-modal-content.show {
+    transform: translateY(0);
 }
 
-.sticky-navbar a:hover {
-    background-color: #007BFF;
-    border-radius: 5px;
-}
-
-/* Responsive Design */
-@media (max-width: 1200px) {
-    .movie-thumbnail {
-        height: 280px;
-    }
-}
-
-@media (max-width: 768px) {
-    .movie-thumbnail {
-        height: 250px;
-    }
-
-    .navbar {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .sticky-navbar {
-        flex-direction: column;
-    }
-}
-
-@media (max-width: 480px) {
-    .movie-thumbnail {
-        height: 220px;
-    }
-
-    .categories button {
-        padding: 10px 15px;
-        font-size: 12px;
-    }
-
-    .movie-card h4 {
-        font-size: 16px;
-    }
-}
-
-/* Additional Responsive Design for Columns */
-@media (max-width: 1024px) {
-    .movie-columns {
-        flex-direction: column;
-    }
-
-    .movie-column {
-        margin-bottom: 30px;
-    }
-
-    .movie-cards {
-        flex-direction: column;
-        align-items: center;
-    }
-}
-
-/* Styling for Movie Categories to display horizontally */
-.categories {
-    display: flex;
-    justify-content: flex-start;
-    gap: 20px;
-    overflow-x: auto;
-    margin: 20px 0;
-}
-
-.movie-columns {
-    display: flex;
-    flex-direction: column;
-    gap: 40px;
-}
-
-.movie-column h3 {
-    font-size: 24px;
-    color: #0056b3;
-    text-align: left;
-}
-
-.movie-card {
-    width: 250px;
-    height: auto;
-    padding: 20px;
-    margin: 10px;
-    background-color: #fafafa;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
-}
-
-.movie-card:hover {
-    transform: translateY(-10px);
-}
-
-.movie-thumbnail {
-    height: 300px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 10px;
-}
-
-/* Flexbox adjustments for smaller screens */
-@media (max-width: 1024px) {
-    .categories {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-
-    .movie-card {
-        width: 220px;
-    }
-}
-
-@media (max-width: 768px) {
-    .movie-card {
-        width: 100%;
-        padding: 15px;
-    }
-
-    .movie-thumbnail {
-        height: 250px;
-    }
-}
-
-@media (max-width: 480px) {
-    .movie-thumbnail {
-        height: 220px;
-    }
-
-    .movie-card h3 {
-        font-size: 16px;
-    }
-
-    .categories button {
-        font-size: 14px;
-        padding: 8px 12px;
-    }
-}

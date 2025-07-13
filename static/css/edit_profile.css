@@ -1,0 +1,100 @@
+:root {
+  --primary-color: #bb86fc;
+  --secondary-color: #03dac6;
+  --accent-color: #cf6679;
+  --background-color: #121212;
+  --surface-color: #1e1e1e;
+  --text-color: #ffffff;
+  --card-background: #2e2e2e;
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --hover-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+body {
+  font-family: "Roboto", Arial, sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.container {
+  background-color: var(--surface-color);
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: var(--card-shadow);
+  max-width: 600px;
+}
+
+h2 {
+  color: var(--primary-color);
+  margin-bottom: 30px;
+  font-size: 2.5rem;
+  text-align: center;
+}
+
+.form-label {
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.form-control {
+  background-color: var(--card-background);
+  border: 1px solid var(--primary-color);
+  color: var(--text-color);
+}
+
+.form-control:focus {
+  background-color: var(--card-background);
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 0.2rem rgba(3, 218, 198, 0.25);
+  color: var(--text-color);
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--background-color);
+  font-weight: 500;
+  padding: 10px 20px;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+  color: var(--background-color);
+  box-shadow: var(--hover-shadow);
+}
+
+/* Custom styling for file input */
+.form-control[type="file"] {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.form-control[type="file"]::-webkit-file-upload-button {
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: 4px;
+  color: var(--background-color);
+  cursor: pointer;
+  font-weight: 500;
+  padding: 8px 16px;
+  transition: all 0.3s ease;
+}
+
+.form-control[type="file"]::-webkit-file-upload-button:hover {
+  background-color: var(--secondary-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+  }
+
+  h2 {
+    font-size: 2rem;
+  }
+}
+

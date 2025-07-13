@@ -5,100 +5,87 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <title>Dashboard | SpotNet</title>
+
 </head>
 <body>
 
-    <!-- Navbar -->
-    <div class="navbar">
-        <div class="profile" onclick="showProfileOptions()">
-            <img src="data:image/jpeg;base64,{{ user['profile_image'] }}" alt="Profile Image" class="profile-image">
-            <h2>{{ user['name'] }}</h2>
-        </div>
-        <a href="/logout">Logout</a>
+<div class="navbar">
+    <div class="profile" onclick="toggleProfileOptions()">
+        <img src="data:image/jpeg;base64,{{ user['profile_image'] }}" alt="Profile Image" class="profile-image">
+        <h2>{{ user['name'] }}</h2>
     </div>
 
-    <!-- Search Bar -->
-    <div class="search-bar">
-        <input type="text" id="search-bar" placeholder="Search movies..." onkeyup="searchMovies()">
+    <!-- Profile Dropdown -->
+    <div id="profile-options" class="profile-options">
+        <a href="{{ url_for('edit_profile', username=user['username']) }}">Edit Profile</a>
+        <a href="{{ url_for('subscription_page', username=user['username']) }}">Subscription</a>
     </div>
+    <span class="subscription-timer">
+        {% if remaining_days is not none %}
+    {% if remaining_days > 0 %}
+        <p>Your subscription expires in {{ remaining_days }} days.</p>
+    {% elif remaining_days == 0 %}
+        <p>Your subscription has expired.</p>
+    {% endif %}
+{% else %}
+    <p>You do not have an active subscription.</p>  {% endif %}
+    </span>
+    <a href="/logout">Logout</a>
+   </div>
+
+    <!-- Search Bar -->
+    <!-- Search Bar -->
+<div class="search-bar">
+    <input type="text" id="search-bar" placeholder="Search movies..." onkeyup="searchMovies()">
+    <div id="search-suggestions" class="suggestions"></div>
+</div>
+
+<div id="carousel-container" class="carousel-container">
+    <div class="carousel" id="carousel">
+        <!-- Carousel items will be dynamically added by JavaScript -->
+    </div>
+    <button class="prev" onclick="moveCarousel(-1)">&#10094;</button>
+    <button class="next" onclick="moveCarousel(1)">&#10095;</button>
+</div>
+
+
+<div id="playlist-modal" class="playlist-modal">
+    <div class="playlist-modal-content">
+        <h3>Select a Playlist or Create a New One</h3>
+
+        <!-- Dropdown for existing playlists -->
+        <div class="playlist-dropdown">
+            <label for="playlist-select">Select Playlist:</label>
+            <select id="playlist-select" name="playlist">
+                <!-- Playlist options will be dynamically populated -->
+            </select>
+        </div>
+
+        <input type="text" id="new-playlist-name" placeholder="Enter Playlist Name">
+        <button onclick="createPlaylist()">Create New Playlist</button>
+        <button onclick="addToSelectedPlaylist()">Add to Playlist</button>
+        <button onclick="closePlaylistModal()">Close</button>
+    </div>
+</div>
+
 
     <!-- Movie Categories -->
     <div class="categories">
-        <button onclick="filterCategory('new_release')">New Releases</button>
-        <button onclick="filterCategory('hindi')">Hindi Movies</button>
-        <button onclick="filterCategory('gujarati')">Gujarati Movies</button>
-        <button onclick="filterCategory('songs')">Songs</button>
-        <button onclick="filterCategory('normal')">Normal Movies</button>
+        {% for category in categories %}
+            <button onclick="filterCategory('{{ category }}')">{{ category | capitalize }}</button>
+        {% endfor %}
     </div>
 
-    <!-- Movie Columns Layout -->
-    <div class="movie-columns">
-        <!-- New Releases Section -->
-        <div class="movie-column" id="new_release">
-            <h3>New Release Movies</h3>
-            <div class="movie-cards">
-                {% for movie in new_releases %}
-                    <div class="movie-card">
-                        <a href="{{ url_for('movie_details', movie_id=movie['id']) }}">
-                            <img src="data:image/jpeg;base64,{{ movie['thumbnail'] }}" alt="Movie Thumbnail" class="movie-thumbnail">
-                            <h3>{{ movie['title'] }}</h3>
-                        </a>
-                        <p>{{ movie['category'] }}</p>
-                        <div class="movie-actions">
-                            <button onclick="playMovie('{{ movie['id'] }}')">Play</button>
-                            <button onclick="downloadMovie('{{ movie['id'] }}')">Download</button>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
+<h2>Recommended Movies & Songs</h2>
+    <div id="recommended-movies" class="movie-cards"></div>
+    <div id="recommended-songs" class="movie-cards"></div>
 
-        <!-- Hindi Movies Section -->
-        <div class="movie-column" id="hindi">
-            <h3>Hindi Movies</h3>
-            <div class="movie-cards">
-                {% for movie in hindi_movies %}
-                    <div class="movie-card">
-                        <a href="{{ url_for('movie_details', movie_id=movie['id']) }}">
-                            <img src="data:image/jpeg;base64,{{ movie['thumbnail'] }}" alt="Movie Thumbnail" class="movie-thumbnail">
-                            <h3>{{ movie['title'] }}</h3>
-                        </a>
-                        <p>{{ movie['category'] }}</p>
-                        <div class="movie-actions">
-                            <button onclick="playMovie('{{ movie['id'] }}')">Play</button>
-                            <button onclick="downloadMovie('{{ movie['id'] }}')">Download</button>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- Gujarati Movies Section -->
-        <div class="movie-column" id="gujarati">
-            <h3>Gujarati Movies</h3>
-            <div class="movie-cards">
-                {% for movie in gujarati_movies %}
-                    <div class="movie-card">
-                        <a href="{{ url_for('movie_details', movie_id=movie['id']) }}">
-                            <img src="data:image/jpeg;base64,{{ movie['thumbnail'] }}" alt="Movie Thumbnail" class="movie-thumbnail">
-                            <h3>{{ movie['title'] }}</h3>
-                        </a>
-                        <p>{{ movie['category'] }}</p>
-                        <div class="movie-actions">
-                            <button onclick="playMovie('{{ movie['id'] }}')">Play</button>
-                            <button onclick="downloadMovie('{{ movie['id'] }}')">Download</button>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- Normal Movies Section -->
-        <div class="movie-column" id="normal">
-            <h3>Normal Movies</h3>
+   <div class="movie-columns">
+    {% for category, movies in movie_sections.items() %}
+        <div class="movie-column" id="{{ category }}">
+            <h3>{{ category }}</h3>
             <div class="movie-cards">
                 {% for movie in movies %}
-                    {% if movie['category'] == 'normal' %}
                     <div class="movie-card">
                         <a href="{{ url_for('movie_details', movie_id=movie['id']) }}">
                             <img src="data:image/jpeg;base64,{{ movie['thumbnail'] }}" alt="Movie Thumbnail" class="movie-thumbnail">
@@ -108,36 +95,52 @@
                         <div class="movie-actions">
                             <button onclick="playMovie('{{ movie['id'] }}')">Play</button>
                             <button onclick="downloadMovie('{{ movie['id'] }}')">Download</button>
+                             <button class="heart-icon" onclick="openPlaylistOptions('{{ movie['id'] }}', 'movie')">
+            ❤️
+        </button>
                         </div>
                     </div>
-                    {% endif %}
                 {% endfor %}
             </div>
         </div>
-    </div>
-
-    <!-- Profile Options Popup -->
-    <div id="profile-options" class="profile-options" style="display:none;">
-        <button onclick="window.location.href='/add_movie'">Add Movie</button>
-        <button onclick="window.location.href='/add_song'">Add Song</button>
-        <button onclick="window.location.href='/add_thumbnail'">Add Thumbnail</button>
-    </div>
-
-    <!-- Sticky Bottom Navbar -->
-    <!-- Sticky Bottom Navbar -->
+    {% endfor %}
+</div>
+<!-- Sticky Navbar -->
+<!-- Sticky Navbar -->
 <div class="sticky-navbar">
-    <a href="{{ url_for('home') }}">Home</a>
+    <a href="{{ url_for('dashboard', username=session.get('user')) }}">Home</a>
     <a href="{{ url_for('movies_page') }}">Movies</a>
     <a href="{{ url_for('songs_page') }}">Songs</a>
-    <a href="/new_releases">New Releases</a>
+    <a href="{{ url_for('live_movie_page') }}" class="live-stream-button" id="liveMovieButton">Watch Live Movie</a>
+    <a href="{{ url_for('playlists_page', username=session.get('user')) }}">Playlists</a> <!-- Corrected here -->
+<a href="{{ url_for('chat', username=session.get('user')) }}" class="chat-btn">Watch Together</a>
+
 </div>
+
+
+
+</div>
+
+
 
 
     <!-- Scripts -->
     <script>
-        function showProfileOptions() {
-            document.getElementById('profile-options').style.display = 'block';
-        }
+        // Function to toggle profile options visibility
+function toggleProfileOptions(event) {
+    const profileOptions = document.getElementById('profile-options');
+    profileOptions.classList.toggle('show');
+    event.stopPropagation();
+}
+
+// Close the profile options if clicked outside
+document.addEventListener('click', function(event) {
+    const profileOptions = document.getElementById('profile-options');
+    if (!profileOptions.contains(event.target) && !event.target.closest('.profile')) {
+        profileOptions.classList.remove('show');
+    }
+});
+
 
         function playMovie(movie_id) {
             window.location.href = `/movie/${movie_id}/play`;
@@ -147,18 +150,222 @@
             window.location.href = `/movie/${movie_id}/download`;
         }
 
+
+function loadLiveMovie() {
+        window.location.href = '/live_movie';
+    }
+
+
         function searchMovies() {
-            var input = document.getElementById('search-bar').value.toLowerCase();
-            var movieCards = document.getElementsByClassName('movie-card');
-            for (var i = 0; i < movieCards.length; i++) {
-                var title = movieCards[i].getElementsByTagName('h3')[0].innerText.toLowerCase();
-                if (title.indexOf(input) > -1) {
-                    movieCards[i].style.display = '';
-                } else {
-                    movieCards[i].style.display = 'none';
+    const input = document.getElementById('search-bar').value.toLowerCase();
+    const suggestions = document.getElementById('search-suggestions');
+
+    if (input.length === 0) {
+        suggestions.innerHTML = ''; // Clear previous suggestions
+        suggestions.style.display = 'none'; // Hide the suggestions if the input is empty
+        return;
+    }
+
+    // Show suggestions when the user starts typing
+    suggestions.style.display = 'block';
+
+    fetch(`/search_movies?query=${input}`)
+        .then(response => response.json())
+        .then(data => {
+            suggestions.innerHTML = ''; // Clear previous suggestions
+
+            const movies = data.movies || [];
+            const songs = data.songs || [];
+
+            if (movies.length > 0 || songs.length > 0) {
+                // Add movie suggestions
+                if (movies.length > 0) {
+                    const movieSection = document.createElement('div');
+                    movieSection.classList.add('suggestion-category');
+                    movieSection.innerHTML = `<strong>Movies</strong>`;
+                    movies.forEach(movie => {
+                        const suggestionItem = document.createElement('div');
+                        suggestionItem.classList.add('suggestion-item');
+                        suggestionItem.onclick = () => {
+                            window.location.href = `/movie/${movie.id}`;
+                        };
+
+                        suggestionItem.innerHTML = `
+                            <img src="data:image/jpeg;base64,${movie.thumbnail}" alt="Thumbnail">
+                            <span>${movie.title}</span>
+                        `;
+                        movieSection.appendChild(suggestionItem);
+                    });
+                    suggestions.appendChild(movieSection);
                 }
+
+                // Add song suggestions
+                if (songs.length > 0) {
+                    const songSection = document.createElement('div');
+                    songSection.classList.add('suggestion-category');
+                    songSection.innerHTML = `<strong>Songs</strong>`;
+                    songs.forEach(song => {
+                        const suggestionItem = document.createElement('div');
+                        suggestionItem.classList.add('suggestion-item');
+                        suggestionItem.onclick = () => {
+                            window.location.href = `/song/${song.id}`;
+                        };
+
+                        suggestionItem.innerHTML = `
+                            <img src="data:image/jpeg;base64,${song.thumbnail}" alt="Thumbnail">
+                            <span>${song.title}</span>
+                        `;
+                        songSection.appendChild(suggestionItem);
+                    });
+                    suggestions.appendChild(songSection);
+                }
+            } else {
+                suggestions.innerHTML = '<div class="suggestion-item">No results found</div>';
             }
+        })
+        .catch(error => {
+            console.error('Error fetching search suggestions:', error);
+        });
+}
+
+// Fetch recommendations for a user
+        function loadRecommendations() {
+            const userId = "{{ user['id'] }}"; // Use the logged-in user ID
+
+            fetch(`/recommendations?user_id=${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const movieSection = document.getElementById('recommended-movies');
+                    const songSection = document.getElementById('recommended-songs');
+
+                    // Display recommended movies
+                    if (data.movies && data.movies.length > 0) {
+                        data.movies.forEach(movie => {
+                            const movieCard = document.createElement('div');
+                            movieCard.classList.add('movie-card');
+                            movieCard.innerHTML = `
+                                <a href="/movie/${movie.id}">
+                                    <img src="data:image/jpeg;base64,${movie.thumbnail}" alt="Movie Thumbnail" class="movie-thumbnail">
+                                    <h3>${movie.title}</h3>
+                                </a>
+                                <p>Genre: ${movie.genre || 'N/A'}</p>
+                            `;
+                            movieSection.appendChild(movieCard);
+                        });
+                    }
+
+                    // Display recommended songs
+                    if (data.songs && data.songs.length > 0) {
+                        data.songs.forEach(song => {
+                            const songCard = document.createElement('div');
+                            songCard.classList.add('movie-card');
+                            songCard.innerHTML = `
+                                <a href="/song/${song.id}">
+                                    <img src="data:image/jpeg;base64,${song.thumbnail}" alt="Song Thumbnail" class="movie-thumbnail">
+                                    <h3>${song.title}</h3>
+                                </a>
+                            `;
+                            songSection.appendChild(songCard);
+                        });
+                    }
+                })
+                .catch(error => console.error('Error fetching recommendations:', error));
         }
+
+        // Call this function when the page loads
+        document.addEventListener('DOMContentLoaded', loadRecommendations);
+
+let currentSlide = 0;
+let carouselData = []; // This will hold the carousel items
+
+// Load the carousel images dynamically
+function loadCarousel() {
+    fetch('/retrieve_carousel_images')
+        .then(response => response.json())
+        .then(data => {
+            carouselData = data.images;
+            const carouselElement = document.getElementById('carousel');
+            carouselElement.innerHTML = '';  // Clear previous images
+
+            if (carouselData.length === 0) {
+                const message = document.createElement('p');
+                message.textContent = "No images available";
+                carouselElement.appendChild(message);
+                hideCarouselControls(true);  // Hide controls if no images
+            } else {
+                carouselData.forEach(image => {
+                    if (image.movie_id) {  // Check if movie_id is available
+                        const img = document.createElement('img');
+                        img.src = 'data:image/jpeg;base64,' + image.image;
+                        img.alt = 'Carousel Image';
+
+                        // Create a link around the image
+                        const link = document.createElement('a');
+                        link.href = `/movie/${image.movie_id}`;  // Link to the movie page
+                        link.target = '_blank';  // Open in a new tab (optional)
+
+                        // Append the image to the link
+                        link.appendChild(img);
+
+                        // Append the link to the carousel
+                        carouselElement.appendChild(link);
+                    } else {
+                        console.error('Missing movie_id for image:', image); // Debugging message
+                    }
+                });
+                hideCarouselControls(false);  // Show controls if there are images
+                startCarousel(); // Start the automatic slide after images are loaded
+            }
+        })
+        .catch(error => console.error('Error loading carousel images:', error));
+}
+
+
+// Function to hide or show carousel controls based on images available
+function hideCarouselControls(hide) {
+    const prevButton = document.querySelector('.prev');
+    const nextButton = document.querySelector('.next');
+    if (hide) {
+        prevButton.style.display = 'none';
+        nextButton.style.display = 'none';
+    } else {
+        prevButton.style.display = 'block';
+        nextButton.style.display = 'block';
+    }
+}
+
+// Function to start the automatic carousel movement
+function startCarousel() {
+    if (carouselData.length > 0) {
+        setInterval(() => {
+            moveCarousel(1); // Move carousel forward every 5 seconds
+        }, 5000); // 5000 milliseconds = 5 seconds
+    }
+}
+
+// Move the carousel images
+function moveCarousel(direction) {
+    const carousel = document.getElementById('carousel');
+    const totalSlides = carouselData.length;
+
+    if (totalSlides === 0) {
+        console.log('No images to display');
+        return;  // Do nothing if there are no images
+    }
+
+    currentSlide = (currentSlide + direction + totalSlides) % totalSlides;
+
+    // Ensure the carousel loops after reaching the last slide
+    if (currentSlide === totalSlides) {
+        currentSlide = 0; // Loop back to the first slide
+    }
+
+    carousel.style.transform = `translateX(-${currentSlide * 16}%)`;
+}
+
+// Call loadCarousel on page load
+document.addEventListener('DOMContentLoaded', loadCarousel);
+
 
 function loadDashboard() {
         fetch('/dashboard')
@@ -191,6 +398,96 @@ function loadSongs() {
         function filterCategory(category) {
             window.location.href = `/dashboard?category=${category}`;
         }
+
+// Open the playlist options modal
+function openPlaylistOptions(itemId, itemType) {
+    // Store the item details for later use
+    window.selectedItem = { itemId, itemType };
+    document.getElementById('playlist-modal').style.display = 'block';
+
+    // Fetch user's playlists
+    fetch(`/get_playlists?username={{ user['username'] }}`)
+        .then(response => response.json())
+        .then(data => {
+            const playlistSelect = document.getElementById('playlist-select');
+            playlistSelect.innerHTML = ''; // Clear existing options
+
+            // Add an option for no playlist
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Select an existing playlist';
+            playlistSelect.appendChild(defaultOption);
+
+            // Add existing playlists
+            data.forEach(playlist => {
+                const playlistOption = document.createElement('option');
+                playlistOption.value = playlist.id;
+                playlistOption.textContent = playlist.name;
+                playlistSelect.appendChild(playlistOption);
+            });
+        });
+}
+
+// Create a new playlist
+function createPlaylist() {
+    const playlistName = document.getElementById('new-playlist-name').value;
+    if (playlistName.trim() === '') return;
+
+    fetch('/create_playlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            username: "{{ user['username'] }}",
+            playlist_name: playlistName
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message === "Playlist created successfully") {
+            alert('Playlist created successfully');
+            openPlaylistOptions(window.selectedItem.itemId, window.selectedItem.itemType); // Reopen the options with updated playlists
+        }
+    });
+}
+
+// Add item to the selected playlist
+function addToSelectedPlaylist() {
+    const playlistId = document.getElementById('playlist-select').value;
+    if (!playlistId) return;
+
+    const itemId = window.selectedItem.itemId;
+    const itemType = window.selectedItem.itemType;
+
+    fetch('/add_to_playlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            username: "{{ user['username'] }}",
+            playlist_id: playlistId,
+            item_id: itemId,
+            item_type: itemType
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message === "Item added to playlist successfully") {
+            alert('Item added to playlist!');
+            closePlaylistModal();
+        }
+    });
+}
+
+// Close the playlist modal
+function closePlaylistModal() {
+    document.getElementById('playlist-modal').style.display = 'none';
+}
+
+
+
+
+
+
+
     </script>
 
    <script src="{{ url_for('static', filename='js/script.js') }}"></script>

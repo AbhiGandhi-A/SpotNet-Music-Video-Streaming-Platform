@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <title>{{ playlist.name }} | SpotNet</title>
+</head>
+<body>
+
+<!-- Sticky Navbar -->
+<div class="sticky-navbar">
+    <a href="{{ url_for('dashboard', username=session.get('user')) }}">Home</a>
+    <a href="{{ url_for('movies_page') }}">Movies</a>
+    <a href="{{ url_for('songs_page') }}">Songs</a>
+    <a href="{{ url_for('live_movie_page') }}" class="live-stream-button">Watch Live Movie</a>
+    <a href="{{ url_for('playlists_page') }}" class="active">Playlists</a> <!-- Current Page Highlighted -->
+</div>
+
+<!-- Playlist Section -->
+<div class="playlist-container">
+    <h2>{{ playlist.name }}</h2>
+    <p>{{ playlist.num_of_items }} items</p>
+
+    <div class="playlist-items">
+        {% for item in items %}
+            <div class="playlist-item">
+                <p>{{ item.title }}</p>
+                <button onclick="playItem({{ item.id }})">Play</button>
+                <button onclick="removeFromPlaylist({{ item.id }})">Remove</button>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    function playItem(itemId) {
+        // Implement play functionality for movie or song
+    }
+
+    function removeFromPlaylist(itemId) {
+        fetch(`/remove_from_playlist`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ item_id: itemId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Item removed from playlist');
+                window.location.reload();  // Reload to reflect changes
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

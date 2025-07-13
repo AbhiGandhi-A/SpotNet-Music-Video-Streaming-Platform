@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ movie.title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/view_movie.css') }}">
+</head>
+<body>
+    <div class="movie-container">
+        <!-- Display movie thumbnail if it exists -->
+        <img src="data:image/png;base64,{{ movie.thumbnail }}" alt="Movie Thumbnail" class="thumbnail">
+        <h1>{{ movie.title }}</h1>
+        <p><strong>Region:</strong> {{ movie.region_name }}</p>
+        <p><strong>Language:</strong> {{ movie.language }}</p>
+        <p><strong>Release Date:</strong> {{ movie.release_date }}</p>
+        <p><strong>Description:</strong> {{ movie.description }}</p>
+
+        <!-- Button Container -->
+        <div class="button-container">
+            <a href="{{ url_for('play_movie', movie_id=movie.id) }}">
+                <button>Play</button>
+            </a>
+            <a href="{{ url_for('download_movie', movie_id=movie.id) }}">
+                <button>Download</button>
+            </a>
+            <a href="{{ url_for('movies_page') }}">
+                <button class="back-button">Back to Movies</button>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

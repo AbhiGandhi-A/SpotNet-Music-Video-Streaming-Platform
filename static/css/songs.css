@@ -1,75 +1,285 @@
-/* songs.css and movies.css */
+:root {
+  --primary-color: #bb86fc;
+  --secondary-color: #03dac6;
+  --accent-color: #cf6679;
+  --background-color: #121212;
+  --surface-color: #1e1e1e;
+  --text-color: #ffffff;
+  --card-background: #2e2e2e;
+  --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --hover-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Basic reset for some default styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Body styling */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
-    margin: 0;
-    padding: 0;
+  font-family: 'Roboto', Arial, sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  background: linear-gradient(45deg, #1a1a1a, #2c2c2c);
+  background-size: cover;
+  min-height: 100vh;
 }
 
+/* Container styling */
 .container {
-    width: 80%;
-    margin: 0 auto;
-    padding-top: 50px;
+  width: 80%;
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: var(--surface-color);
+  border-radius: 10px;
+  box-shadow: var(--card-shadow);
+  animation: fadeIn 0.5s ease-in-out;
 }
 
+/* Header and Title */
 h1 {
-    text-align: center;
+  font-size: 36px;
+  margin-bottom: 10px;
+  color: var(--primary-color);
+  text-align: center;
+  animation: slideInDown 0.5s ease-out;
 }
 
-table {
-    width: 100%;
-    margin: 20px 0;
-    border-collapse: collapse;
-    background-color: #fff;
+/* Subtitle for Song Info */
+h3 {
+  font-size: 24px;
+  margin-top: 20px;
+  color: var(--secondary-color);
+  animation: slideInLeft 0.5s ease-out;
 }
 
-th, td {
-    padding: 10px;
-    text-align: center;
-    border: 1px solid #ddd;
+/* Paragraphs */
+p {
+  font-size: 18px;
+  margin: 10px 0;
+  animation: fadeIn 0.5s ease-in-out;
 }
 
-th {
-    background-color: #f2f2f2;
+/* Labels */
+strong {
+  font-weight: bold;
+  color: var(--accent-color);
 }
 
+/* Image styling for the movie poster */
+img {
+  border-radius: 10px;
+  margin-top: 15px;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+img:hover {
+  transform: scale(1.05);
+  box-shadow: var(--hover-shadow);
+}
+
+/* Audio controls styling */
+audio {
+  width: 100%;
+  margin-top: 20px;
+  background-color: var(--card-background);
+  border-radius: 10px;
+  animation: slideInUp 0.5s ease-out;
+}
+
+/* Back button */
 a {
-    text-decoration: none;
-    color: #007bff;
+  display: inline-block;
+  margin-top: 20px;
+  font-size: 18px;
+  color: var(--text-color);
+  text-decoration: none;
+  padding: 10px 15px;
+  background-color: var(--primary-color);
+  border-radius: 5px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  animation: fadeIn 0.5s ease-in-out;
 }
 
 a:hover {
-    color: #0056b3;
+  background-color: var(--secondary-color);
+  transform: translateY(-2px);
 }
 
-form {
-    width: 50%;
-    margin: 0 auto;
-    background-color: #fff;
-    padding: 20px;
-    border: 1px solid #ddd;
+a:active {
+  transform: translateY(1px);
 }
 
-form label {
-    font-size: 14px;
-    font-weight: bold;
-}
+/* Additional responsiveness for smaller screens */
+@media (max-width: 768px) {
+  .container {
+    width: 90%;
+    padding: 15px;
+  }
 
-form input[type="text"], form input[type="file"] {
+  h1 {
+    font-size: 28px;
+  }
+
+  p {
+    font-size: 16px;
+  }
+
+  audio {
     width: 100%;
-    padding: 8px;
-    margin: 10px 0;
-    border: 1px solid #ddd;
+  }
+
+  a {
+    font-size: 16px;
+    padding: 8px 12px;
+  }
 }
 
-form button {
-    padding: 10px 20px;
-    background-color: #28a745;
-    border: none;
-    color: #fff;
-    cursor: pointer;
+/* Animations */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
-form button:hover {
-    background-color: #218838;
+@keyframes slideInDown {
+  0% {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  0% {
+    transform: translateX(-50px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  0% {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Enhanced Sticky Bottom Navbar */
+.sticky-navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface-color);
+  display: flex;
+  justify-content: space-around;
+  padding: 15px 0;
+  color: white;
+  font-size: 16px;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  animation: slideInUp 0.5s ease-out;
+}
+
+.sticky-navbar a {
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sticky-navbar a:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive Design for Sticky Navbar */
+@media (max-width: 768px) {
+  .sticky-navbar {
+    flex-wrap: wrap;
+  }
+
+  .sticky-navbar a {
+    flex: 1 0 50%;
+    text-align: center;
+  }
+}
+
+/* Additional Graphics */
+.container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(to right, var(--primary-color), var(--secondary-color), var(--accent-color));
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+.container::after {
+  content: '♫';
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 24px;
+  color: var(--accent-color);
+  opacity: 0.5;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+/* Add to Playlist Button */
+button {
+  margin: 9px;
+  padding: 16px 18px;
+  background-color: var(--accent-color);
+  color: var(--background-color);
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-2px);
+}
+
+button:active {
+  transform: translateY(1px);
 }

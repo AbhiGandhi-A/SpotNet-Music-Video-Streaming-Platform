@@ -3,18 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/register.css">
     <title>Register | SpotNet</title>
 </head>
 <body>
+    <!-- Banner Section -->
+    <header>
+        <div class="banner">
+            <img src="{{ url_for('static', filename='img/img1.png') }}" alt="Banner Image">
+            <div class="website-name">
+                <h1>SpotNet</h1>
+            </div>
+        </div>
+    </header>
+
+    <!-- Register Form Section -->
     <div class="form-container">
         <h1>Register</h1>
         <form id="register-form" action="/register" method="POST" enctype="multipart/form-data">
             <input type="text" name="name" id="name" placeholder="Name" required>
             <input type="text" name="username" id="username" placeholder="Username" required>
             <input type="password" name="password" id="password" placeholder="Password" required>
-
-            <label for="dob">Date of Birth</label>
+            <input type="email" name="email" id="email" placeholder="Email" required>  <label for="dob">Date of Birth</label>
             <input type="date" name="dob" id="dob" required>
 
             <label for="profile_image">Profile Image</label>
@@ -26,6 +36,13 @@
     </div>
 
     <script>
+        // Prevent users from selecting a future date for the Date of Birth field
+        document.addEventListener('DOMContentLoaded', () => {
+            const dobInput = document.getElementById('dob');
+            const today = new Date().toISOString().split('T')[0];
+            dobInput.setAttribute('max', today);
+        });
+
         document.getElementById('register-form').addEventListener('submit', function(event) {
             const profileImage = document.getElementById('profile_image').files[0];
 

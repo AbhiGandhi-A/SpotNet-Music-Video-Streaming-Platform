@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+    <title>Admin Dashboard | SpotNet</title>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2><i class="fas fa-film"></i> SpotNet Admin</h2>
+            <ul>
+                <li><button onclick="loadPage('dashboard')"><i class="fas fa-home"></i> Dashboard</button></li>
+                <li><button onclick="loadPage('add_movie')"><i class="fas fa-plus-circle"></i> Add Movie</button></li>
+                <li><button onclick="loadPage('add_song')"><i class="fas fa-music"></i> Add Song</button></li>
+                <li><button onclick="loadPage('add_thumbnail')"><i class="fas fa-image"></i> Add Thumbnail</button></li>
+                <li><button onclick="loadPage('manage_users')"><i class="fas fa-users"></i> Manage Users</button></li>
+                <li><button onclick="loadPage('live_movie')"><i class="fas fa-video"></i> Live Movie</button></li>
+            </ul>
+            <a href="/logout" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content" id="main-content">
+            <h2>Welcome, Admin</h2>
+            <p>Select an option from the sidebar to begin.</p>
+            <div id="dashboard-stats">
+                <div class="stat-card">
+                    <h3>Total Movies</h3>
+                    <p id="total-movies">Loading...</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Songs</h3>
+                    <p id="total-songs">Loading...</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Users</h3>
+                    <p id="total-users">Loading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Users Section -->
+    <template id="manage-users-template">
+        <h2>Manage Users</h2>
+        <button id="add-user-button">Add User</button>
+        <div id="user-table-container">
+            <table id="user-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- User data will be populated dynamically -->
+                </tbody>
+            </table>
+        </div>
+    </template>
+
+    <!-- Edit User Modal -->
+    <div id="edit-user-modal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>Edit User</h3>
+            <form id="edit-user-form">
+                <input type="hidden" id="user-id" />
+                <label for="edit-username">Username:</label>
+                <input type="text" id="edit-username" required />
+                <label for="edit-email">Email:</label>
+                <input type="email" id="edit-email" required />
+                <label for="edit-role">Role:</label>
+                <input type="text" id="edit-role" required />
+                <button type="submit">Save</button>
+                <button type="button" onclick="closeModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Add Thumbnail Template -->
+<template id="add-thumbnail-template">
+    <h2>Manage Carousel Images</h2>
+    <button id="add-thumbnail-button">Add Thumbnail</button>
+    <div id="carousel-images-container">
+        <table id="carousel-images-table">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Movie</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Carousel images will be populated dynamically -->
+            </tbody>
+        </table>
+    </div>
+</template>
+
+<!-- Add/Edit Image Modal -->
+<div id="add-edit-image-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+        <h3 id="modal-title">Add New Image</h3>
+        <form id="image-form">
+    <input type="file" id="image-file" required />
+    <input type="text" name="genre" id="genre" required placeholder="Enter Genre">  <!-- Ensure genre is set -->
+    <select id="movie-select" name="movie_id" required>  <!-- Ensure movie_id is set -->
+        <!-- Options will be populated dynamically -->
+    </select>
+    <button type="submit">Save</button>
+    <button type="button" onclick="closeModal()">Cancel</button>
+</form>
+    </div>
+</div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js"></script>
+    <script>
+    // Function to load a page dynamically
+    function loadPage(page) {
+        if (page === 'dashboard') {
+            // Fetch and display the dashboard stats when the Dashboard page is selected
+            const template = document.createElement('div');
+            template.innerHTML = `
+                <h2>Welcome, Admin</h2>
+                <p>Select an option from the sidebar to begin.</p>
+                <div id="dashboard-stats">
+                    <div class="stat-card">
+                        <h3>Total Movies</h3>
+                        <p id="total-movies">Loading...</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Songs</h3>
+                        <p id="total-songs">Loading...</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Users</h3>
+                        <p id="total-users">Loading...</p>
+                    </div>
+                </div>
+            `;
+            document.getElementById('main-content').innerHTML = '';
+            document.getElementById('main-content').appendChild(template);
+            fetchStats(); // Fetch the stats when the Dashboard page is selected
+        } else if (page === 'manage_users') {
+            // Load the Manage Users Template
+            const template = document.getElementById('manage-users-template').content.cloneNode(true);
+            document.getElementById('main-content').innerHTML = '';
+            document.getElementById('main-content').appendChild(template);
+            fetchUsers(); // Fetch user data after loading the template
+        } else if (page === 'add_thumbnail') {
+            // Load the Add Thumbnail Template
+            const template = document.getElementById('add-thumbnail-template').content.cloneNode(true);
+            document.getElementById('main-content').innerHTML = '';
+            document.getElementById('main-content').appendChild(template);
+            fetchCarouselImages(); // Fetch carousel images after loading the template
+        } else {
+            fetch(`/admin/${page}`)
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('main-content').innerHTML = html;
+                })
+                .catch(error => console.error('Error loading page:', error));
+        }
+    }
+
+    // Function to fetch stats for the Dashboard
+    function fetchStats() {
+        fetch('/admin/stats')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('total-movies').textContent = data.total_movies;
+                document.getElementById('total-songs').textContent = data.total_songs;
+                document.getElementById('total-users').textContent = data.total_users;
+            })
+            .catch(error => console.error('Error fetching stats:', error));
+    }
+
+    // Call the loadPage function to load the dashboard by default when the page is loaded
+    window.onload = function() {
+        loadPage('dashboard');
+    };
+
+    // Function to fetch and display users
+    function fetchUsers() {
+        fetch('/admin/users')
+            .then(response => response.json())
+            .then(users => {
+                const tableBody = document.querySelector('#user-table tbody');
+                tableBody.innerHTML = '';
+                users.forEach(user => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${user.id}</td>
+                        <td>${user.username}</td>
+                        <td>${user.email}</td>
+                        <td>${user.role}</td>
+                        <td>
+                            <button onclick="editUser(${user.id})">Edit</button>
+                            <button onclick="deleteUser(${user.id})">Delete</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching users:', error));
+    }
+
+
+function toggleAddCategoryButton() {
+            const newCategoryInput = document.getElementById('new_category').value;
+            document.getElementById('add-category-btn').disabled = !newCategoryInput;
+        }
+
+        function addCategory() {
+    const newCategory = document.getElementById('new_category').value;
+    const adult = document.getElementById('adult').value;
+
+    fetch('/add_category', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: newCategory, adult: parseInt(adult) })
+    })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Category added successfully!');
+                    location.reload();
+                } else {
+                    alert('Error adding category: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while adding the category.');
+            });
+        }
+    // Add User Functionality
+    document.addEventListener('click', event => {
+        if (event.target.id === 'add-user-button') {
+            const username = prompt('Enter username:');
+            const email = prompt('Enter email:');
+            const role = prompt('Enter role:');
+            if (username && email && role) {
+                fetch('/admin/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, role })
+                })
+                .then(() => fetchUsers())
+                .catch(error => console.error('Error adding user:', error));
+            }
+        }
+    });
+
+    // Edit User Functionality
+    function editUser(userId) {
+        fetch(`/admin/users/${userId}`)
+            .then(response => response.json())
+            .then(user => {
+                // Set the form fields with user data
+                document.getElementById('user-id').value = user.id;
+                document.getElementById('edit-username').value = user.username;
+                document.getElementById('edit-email').value = user.email;
+                document.getElementById('edit-role').value = user.role;
+
+                // Display the modal
+                document.getElementById('edit-user-modal').style.display = 'block';
+            })
+            .catch(error => console.error('Error fetching user data:', error));
+    }
+
+    // Save Edited User
+    document.getElementById('edit-user-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const userId = document.getElementById('user-id').value;
+        const username = document.getElementById('edit-username').value;
+        const email = document.getElementById('edit-email').value;
+        const role = document.getElementById('edit-role').value;
+
+        fetch(`/admin/users/${userId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, email, role })
+        })
+        .then(() => {
+            fetchUsers();
+            closeModal();
+        })
+        .catch(error => console.error('Error updating user:', error));
+    });
+
+    // Delete User
+    function deleteUser(userId) {
+        fetch(`/admin/users/${userId}`, { method: 'DELETE' })
+            .then(() => fetchUsers())
+            .catch(error => console.error('Error deleting user:', error));
+    }
+
+    // Close modal
+    function closeModal() {
+        document.getElementById('edit-user-modal').style.display = 'none';
+    }
+
+   function fetchCarouselImages() {
+    fetch('/admin/get_carousel_images')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.querySelector('#carousel-images-table tbody');
+            tableBody.innerHTML = ''; // Clear the table before adding new images
+
+            if (data.images && data.images.length > 0) {
+                data.images.forEach(image => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><img src="data:image/jpeg;base64,${image.image}" alt="Carousel Image" width="100" /></td>
+                        <td>${image.movie_title}</td>  <!-- Display movie name without link -->
+                        <td>
+                            <button onclick="deleteImage(${image.id})">Delete</button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } else {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="3">No images found</td>`;
+                tableBody.appendChild(row);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching carousel images:', error);
+            const tableBody = document.querySelector('#carousel-images-table tbody');
+            tableBody.innerHTML = '<tr><td colspan="3">Error loading images</td></tr>';
+        });
+}
+
+
+
+
+// Add Image functionality
+document.addEventListener('click', event => {
+    if (event.target.id === 'add-thumbnail-button') {
+        openModal('add'); // Open modal for adding a new image
+    }
+});
+
+// Open modal to add or edit image
+function openModal(action, imageId = null) {
+    document.getElementById('add-edit-image-modal').style.display = 'block';
+    if (action === 'add') {
+        document.getElementById('modal-title').textContent = 'Add New Image';
+        document.getElementById('image-form').onsubmit = (event) => {
+            event.preventDefault();
+            addImage();
+        };
+        loadMovies();  // Load the movie list when adding an image
+    } else if (action === 'edit') {
+        document.getElementById('modal-title').textContent = 'Edit Image';
+        document.getElementById('image-form').onsubmit = (event) => {
+            event.preventDefault();
+            editImage(imageId);
+        };
+    }
+}
+
+function loadMovies() {
+    fetch('/admin/get_movies')  // Fetch movies from the backend
+        .then(response => response.json())
+        .then(movies => {
+            const movieSelect = document.getElementById('movie-select');
+            movieSelect.innerHTML = '';  // Clear previous options
+
+            movies.forEach(movie => {
+                const option = document.createElement('option');
+                option.value = movie.id;
+                option.textContent = movie.title;  // Assuming the movie has a title field
+                movieSelect.appendChild(option);
+            });
+        })
+        .catch(error => console.error('Error fetching movies:', error));
+}
+
+
+// Add Image to the database
+function addImage() {
+    const imageFile = document.getElementById('image-file').files[0];
+    const genre = document.getElementById('genre').value; // Get genre value
+    const movieId = document.getElementById('movie-select').value; // Get movie_id from select
+
+    if (!genre || !movieId) {
+        alert('Please fill in all fields.');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    formData.append('genre', genre);
+    formData.append('movie_id', movieId);
+
+    fetch('/admin/add_carousel_image', {
+        method: 'POST',
+        body: formData
+    })
+    .then(() => {
+        fetchCarouselImages(); // Fetch updated images after adding
+        closeModal();
+    })
+    .catch(error => console.error('Error adding image:', error));
+}
+
+
+
+function deleteImage(imageId) {
+    console.log(`Attempting to delete image with ID: ${imageId}`);  // Debugging log
+
+    fetch(`/admin/delete_carousel_image/${imageId}`, {
+        method: 'DELETE',
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('Image deleted successfully');
+            fetchCarouselImages(); // Reload the list of images
+        } else {
+            console.error('Error deleting image:', response.statusText);
+        }
+    })
+    .catch(error => console.error('Error deleting image:', error));
+}
+
+
+
+
+// Close the modal
+function closeModal() {
+    document.getElementById('add-edit-image-modal').style.display = 'none';
+}
+
+</script>
+
+</body>
+</html>
