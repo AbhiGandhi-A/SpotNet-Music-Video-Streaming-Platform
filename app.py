@@ -37,7 +37,7 @@ def get_db_connection():
     return pymysql.connect(
         host='127.0.0.1',
         user='root',
-        password='Abhi@3014',
+        password='',
         database='spotnet',
         cursorclass=pymysql.cursors.DictCursor
     )
@@ -442,8 +442,8 @@ def subscription_page(username):
 
 # Function to send subscription.css email
 def send_subscription_email(user_email, subscription):
-    sender_email = "spotnet432@gmail.com"
-    sender_password = "remb cmks dxlc homi"
+    sender_email = ""
+    sender_password = ""
 
     message = MIMEMultipart("alternative")
     message["Subject"] = f"Subscription Confirmation - SpotNet"
